@@ -19,16 +19,16 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\fairy_tail.cpp" />
+    <ClCompile Include="src\common\api\fairy_tail.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\Person.cpp" />
-    <ClCompile Include="src\WayTree.cpp" />
+    <ClCompile Include="src\architecture\Person.cpp" />
+    <ClCompile Include="src\architecture\WayTree.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\fairy_tail.hpp" />
-    <ClInclude Include="include\Person.hpp" />
-    <ClInclude Include="include\WayNode.hpp" />
-    <ClInclude Include="include\WayTree.hpp" />
+    <ClInclude Include="include\common\api\fairy_tail.hpp" />
+    <ClInclude Include="include\architecture\Person.hpp" />
+    <ClInclude Include="include\architecture\WayNode.hpp" />
+    <ClInclude Include="include\architecture\WayTree.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="res\input.txt">

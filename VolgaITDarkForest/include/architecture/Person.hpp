@@ -1,9 +1,9 @@
 #ifndef PERSON_HPP
 #define PERSON_HPP
 
-#include "fairy_tail.hpp"
+#include "common/api/fairy_tail.hpp"
 
-namespace maze
+namespace architecture
 {
 	class Person
 	{

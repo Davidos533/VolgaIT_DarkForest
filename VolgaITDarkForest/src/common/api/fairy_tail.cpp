@@ -1,4 +1,4 @@
-#include "fairy_tail.hpp"
+#include "common/api/fairy_tail.hpp"
 
 Fairyland::Fairyland()
     : mOutput("output.txt")

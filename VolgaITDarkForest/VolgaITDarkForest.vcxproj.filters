@@ -18,27 +18,27 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\fairy_tail.cpp">
+    <ClCompile Include="src\common\api\fairy_tail.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\Person.cpp">
+    <ClCompile Include="src\architecture\Person.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\WayTree.cpp">
+    <ClCompile Include="src\architecture\WayTree.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\fairy_tail.hpp">
+    <ClInclude Include="include\common\api\fairy_tail.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="include\Person.hpp">
+    <ClInclude Include="include\architecture\Person.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="include\WayTree.hpp">
+    <ClInclude Include="include\architecture\WayTree.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="include\WayNode.hpp">
+    <ClInclude Include="include\architecture\WayNode.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

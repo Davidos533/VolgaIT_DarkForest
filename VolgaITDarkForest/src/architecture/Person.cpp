@@ -1,6 +1,6 @@
-#include "Person.hpp"
+#include "architecture/Person.hpp"
 
-namespace maze
+namespace architecture
 {
 	Person::Person(Fairyland& fairyland, Character character, Direction startDirection)
 		:m_fairyland(fairyland), m_character(character), m_currentMooveDirection(startDirection)
