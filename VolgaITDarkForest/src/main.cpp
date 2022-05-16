@@ -62,18 +62,18 @@ int walk()
 	{
 		long iterNums;
 
-		architecture::Person king(world, Character::Ivan);
-		architecture::Person queen(world, Character::Elena);
+		//architecture::Person king(world, Character::Ivan);
+		//architecture::Person queen(world, Character::Elena);
 
 		// persons sides walk lengths
-		std::vector<int> sidesWalkLengtKing(4);
-		std::vector<int> sidesWalkLengthQueen(4);
+		//std::vector<int> sidesWalkLengtKing(4);
+		//std::vector<int> sidesWalkLengthQueen(4);
 
-		do
-		{
-			king.moove();
-			queen.moove();
-		} while (!world.go(king.getDirection(), queen.getDirection()));
+		//do
+		//{
+		//	king.moove();
+		//	queen.moove();
+		//} while (!world.go(king.getDirection(), queen.getDirection()));
 
 	}
 	catch (std::runtime_error)

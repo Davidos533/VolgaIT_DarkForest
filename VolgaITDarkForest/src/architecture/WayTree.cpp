@@ -8,127 +8,126 @@ namespace architecture
 	{
 		m_currentPosition = new WayNode();
 		m_currentPosition->coordinates = Position(0, 0);
-		m_nodesMap = std::map<Position, WayNode*>();
-		m_nodesMap.insert(MapNodePair(m_currentPosition->coordinates, m_currentPosition));
+		m_nodesMap = new std::map<Position, WayNode*>();
+		m_nodesMap->insert(MapNodePair(m_currentPosition->coordinates, m_currentPosition));
 	}
 
-	/// <summary>
-	/// add new way node to current position
-	/// </summary>
-	/// <param name="direction">new node direction</param>
-	/// <returns>is node added</returns>
-	bool WayTree::addNode(Direction direction)
+	WayNode* const WayTree::getCurrentPosition() const
+	{
+		return m_currentPosition;
+	}
+
+	std::map<WayTree::Position, WayNode*>* const WayTree::getNodesMap() const
+	{
+		return m_nodesMap;
+	}
+
+	bool WayTree::addOrSetNodeInConcreteDirection(Direction direction)
 	{
 		// determine direction 
 		switch (direction)
 		{
-		case Direction::Up:
-		{
-			if (m_currentPosition->UpNode == nullptr)
+			case Direction::Up:
 			{
-				m_currentPosition->UpNode = new WayNode();
-				m_currentPosition->UpNode->DownNode = m_currentPosition;
-				m_currentPosition->UpNode->coordinates = Position(m_currentPosition->coordinates.first, m_currentPosition->coordinates.second + 1);
+				if (m_currentPosition->UpNode == nullptr)
+				{
+					m_currentPosition->UpNode = new WayNode();
+					m_currentPosition->UpNode->DownNode = m_currentPosition;
+					m_currentPosition->UpNode->coordinates = Position(m_currentPosition->coordinates.first, m_currentPosition->coordinates.second + 1);
 
-				// set root to new node
-				m_currentPosition = m_currentPosition->UpNode;
+					// set root to new node
+					m_currentPosition = m_currentPosition->UpNode;
 
-				// add node in map
-				m_nodesMap.insert(MapNodePair(m_currentPosition->coordinates, m_currentPosition));
+					// add node in map
+					m_nodesMap->insert(MapNodePair(m_currentPosition->coordinates, m_currentPosition));
 
-				findAndConnectNearestNodes(m_currentPosition);
+					findAndConnectNearestNodes(m_currentPosition);
 
-				return true;
-			}
-			else
+					return true;
+				}
+				else
+				{
+					// set root to new node
+					m_currentPosition = m_currentPosition->UpNode;
+					return false;
+				}
+			}break;
+			case Direction::Down:
 			{
-				// set root to new node
-				m_currentPosition = m_currentPosition->UpNode;
-				return false;
-			}
-		}break;
-		case Direction::Down:
-		{
-			if (m_currentPosition->DownNode == nullptr)
+				if (m_currentPosition->DownNode == nullptr)
+				{
+					m_currentPosition->DownNode = new WayNode();
+					m_currentPosition->DownNode->UpNode = m_currentPosition;
+					m_currentPosition->DownNode->coordinates = Position(m_currentPosition->coordinates.first, m_currentPosition->coordinates.second - 1);
+
+					// set root to new node
+					m_currentPosition = m_currentPosition->DownNode;
+
+					// add node in map
+					m_nodesMap->insert(MapNodePair(m_currentPosition->coordinates, m_currentPosition));
+
+					return true;
+				}
+				else
+				{
+					// set root to new node
+					m_currentPosition = m_currentPosition->DownNode;
+					return false;
+				}
+			}break;
+			case Direction::Left:
 			{
-				m_currentPosition->DownNode = new WayNode();
-				m_currentPosition->DownNode->UpNode = m_currentPosition;
-				m_currentPosition->DownNode->coordinates = Position(m_currentPosition->coordinates.first, m_currentPosition->coordinates.second - 1);
+				if (m_currentPosition->LeftNode == nullptr)
+				{
+					m_currentPosition->LeftNode = new WayNode();
+					m_currentPosition->LeftNode->RightNode = m_currentPosition;
+					m_currentPosition->LeftNode->coordinates = Position(m_currentPosition->coordinates.first - 1, m_currentPosition->coordinates.second);
 
-				// set root to new node
-				m_currentPosition = m_currentPosition->DownNode;
+					// set root to new node
+					m_currentPosition = m_currentPosition->LeftNode;
 
-				// add node in map
-				m_nodesMap.insert(MapNodePair(m_currentPosition->coordinates, m_currentPosition));
+					// add node in map
+					m_nodesMap->insert(MapNodePair(m_currentPosition->coordinates, m_currentPosition));
 
-				return true;
-			}
-			else
+					findAndConnectNearestNodes(m_currentPosition);
+
+					return true;
+				}
+				else
+				{
+					// set root to new node
+					m_currentPosition = m_currentPosition->LeftNode;
+					return false;
+				}
+			}break;
+			case Direction::Right:
 			{
-				// set root to new node
-				m_currentPosition = m_currentPosition->DownNode;
-				return false;
-			}
-		}break;
-		case Direction::Left:
-		{
-			if (m_currentPosition->LeftNode == nullptr)
-			{
-				m_currentPosition->LeftNode = new WayNode();
-				m_currentPosition->LeftNode->RightNode = m_currentPosition;
-				m_currentPosition->LeftNode->coordinates = Position(m_currentPosition->coordinates.first - 1, m_currentPosition->coordinates.second);
+				if (m_currentPosition->RightNode == nullptr)
+				{
+					m_currentPosition->RightNode = new WayNode();
+					m_currentPosition->RightNode->LeftNode = m_currentPosition;
+					m_currentPosition->RightNode->coordinates = Position(m_currentPosition->coordinates.first + 1, m_currentPosition->coordinates.second);
 
-				// set root to new node
-				m_currentPosition = m_currentPosition->LeftNode;
-				
-				// add node in map
-				m_nodesMap.insert(MapNodePair(m_currentPosition->coordinates, m_currentPosition));
+					// set root to new node
+					m_currentPosition = m_currentPosition->RightNode;
 
-				findAndConnectNearestNodes(m_currentPosition);
+					// add node in map
+					m_nodesMap->insert(MapNodePair(m_currentPosition->coordinates, m_currentPosition));
 
-				return true;
-			}
-			else
-			{
-				// set root to new node
-				m_currentPosition = m_currentPosition->LeftNode;
-				return false;
-			}
-		}break;
-		case Direction::Right:
-		{
-			if (m_currentPosition->RightNode == nullptr)
-			{
-				m_currentPosition->RightNode = new WayNode();
-				m_currentPosition->RightNode->LeftNode = m_currentPosition;
-				m_currentPosition->RightNode->coordinates = Position(m_currentPosition->coordinates.first + 1, m_currentPosition->coordinates.second);
+					findAndConnectNearestNodes(m_currentPosition);
 
-				// set root to new node
-				m_currentPosition = m_currentPosition->RightNode;
-				
-				// add node in map
-				m_nodesMap.insert(MapNodePair(m_currentPosition->coordinates, m_currentPosition));
-
-				findAndConnectNearestNodes(m_currentPosition);
-
-				return true;
-			}
-			else
-			{
-				// set root to new node
-				m_currentPosition = m_currentPosition->RightNode;
-				return false;
-			}
-		}break;
+					return true;
+				}
+				else
+				{
+					// set root to new node
+					m_currentPosition = m_currentPosition->RightNode;
+					return false;
+				}
+			}break;
 		}
 	}
 
-	/// <summary>
-	/// method to find element in way tree by recursion
-	/// </summary>
-	/// <param name="coordiantes">coordinates that's using for searching</param>
-	/// <param name="node">node that base for searching has default value = nullptr for using inside recursion</param>
-	/// <returns>finded node with coordinates</returns>
 	WayNode* WayTree::findNodeByCoordiantes(Position coordiantes, WayNode* node, Direction backDirection)
 	{
 		static Position startPosition;
@@ -217,14 +216,11 @@ namespace architecture
 		}
 	}
 
-
-	bool WayTree::removeNode(WayNode* wayNode)
-	{
-		return true;
-	}
-
 	WayTree::~WayTree()
 	{
+		// add deleting way tree
+
+		delete m_nodesMap;
 	}
 
 #pragma endregion
@@ -233,12 +229,13 @@ namespace architecture
 
 	void WayTree::findAndConnectNearestNodes(WayNode* checkingNode)
 	{
-		auto mapEnd = m_nodesMap.end();
+		auto mapEnd = m_nodesMap->end();
+
 		// successively checks node relations, and try to connect not connected nodes
 		if (checkingNode->UpNode == nullptr)
 		{
-			auto result = m_nodesMap.find(Position(checkingNode->coordinates.first,checkingNode->coordinates.second+1));
-			
+			auto result = m_nodesMap->find(Position(checkingNode->coordinates.first, checkingNode->coordinates.second + 1));
+
 			if (result != mapEnd)
 			{
 				checkingNode->UpNode = result->second;
@@ -247,7 +244,7 @@ namespace architecture
 
 		if (checkingNode->DownNode == nullptr)
 		{
-			auto result = m_nodesMap.find(Position(checkingNode->coordinates.first, checkingNode->coordinates.second - 1));
+			auto result = m_nodesMap->find(Position(checkingNode->coordinates.first, checkingNode->coordinates.second - 1));
 
 			if (result != mapEnd)
 			{
@@ -257,7 +254,7 @@ namespace architecture
 
 		if (checkingNode->LeftNode == nullptr)
 		{
-			auto result = m_nodesMap.find(Position(checkingNode->coordinates.first - 1, checkingNode->coordinates.second ));
+			auto result = m_nodesMap->find(Position(checkingNode->coordinates.first - 1, checkingNode->coordinates.second));
 
 			if (result != mapEnd)
 			{
@@ -267,7 +264,7 @@ namespace architecture
 
 		if (checkingNode->RightNode == nullptr)
 		{
-			auto result = m_nodesMap.find(Position(checkingNode->coordinates.first + 1, checkingNode->coordinates.second ));
+			auto result = m_nodesMap->find(Position(checkingNode->coordinates.first + 1, checkingNode->coordinates.second));
 
 			if (result != mapEnd)
 			{
