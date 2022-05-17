@@ -33,9 +33,9 @@
     <ClInclude Include="include\architecture\WayTree.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="res\input.txt">
+    <CopyFileToFolders Include="res\input.txt">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </Text>
+    </CopyFileToFolders>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

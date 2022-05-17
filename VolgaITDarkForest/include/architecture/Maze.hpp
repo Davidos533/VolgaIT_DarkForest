@@ -13,6 +13,7 @@ namespace architecture
 		Person *m_king;
 		Person *m_queen;
 
+
 	public:
 		explicit Maze();
 		Maze(const Maze& copy) = delete;

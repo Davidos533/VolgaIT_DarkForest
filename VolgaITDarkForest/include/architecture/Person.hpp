@@ -2,6 +2,7 @@
 #define PERSON_HPP
 
 #include <stack>
+#include <list>
 
 #include "common/api/fairy_tail.hpp"
 #include "WayTree.hpp"
@@ -9,11 +10,37 @@ namespace architecture
 {
 	class Person
 	{
+		using Position = std::pair<int, int>;
 	private:
-		Character m_character;
-		Fairyland* m_fairyland;
-		WayTree* m_wayTree;
 		
+		/// <summary>
+		/// character type
+		/// </summary>
+		Character m_character;
+
+		/// <summary>
+		/// maze (map)
+		/// </summary>
+		Fairyland* m_fairyland;
+
+		/// <summary>
+		/// person move graph
+		/// </summary>
+		WayTree* m_wayTree;
+
+		/// <summary>
+		/// contains person start position
+		/// </summary>
+		WayNode* m_startPosition;
+		
+		/// <summary>
+		/// show how much not discovered(explored) branches left
+		/// </summary>
+		std::list<Position>* m_coordiantesOfNotDiscoveredPosition;
+		
+		/// <summary>
+		/// contains all applied directions moves from start to current position
+		/// </summary>
 		std::stack<Direction>* m_waySequence;
 
 	public:
@@ -33,22 +60,19 @@ namespace architecture
 		/// <summary>
 		/// checks is person can go to direction
 		/// </summary>
-		/// <param name="direction">direction</param>
+		/// <param name="direction">direction for check</param>
 		/// <returns>is user can go</returns>
 		bool isCanGo(Direction direction);
 
 		/// <summary>
 		/// checks is discovered (is haves node) in given direction
 		/// </summary>
-		/// <param name="direction">direction to check</param>
+		/// <param name="direction">direction for check</param>
 		/// <returns>is discovered direction</returns>
 		bool isDiscoveredDirection(Direction direction);
 
 		/// <summary>
 		/// moove persone to concrete direction
-		/// 
-		/// if direction is not avaliable:
-		///		throws exception std::runtime_error
 		/// </summary>
 		/// <param name="direction">mooveable direction</param>
 		void goToDirection(Direction direction);
@@ -62,6 +86,8 @@ namespace architecture
 		/// <param name="direction">given direction</param>
 		/// <returns>reversed direction</returns>
 		Direction getReversedDirection(Direction direction);
+
+		void emplaceCoordinatesIfNotExist(Position position);
 	};
 }
 #endif

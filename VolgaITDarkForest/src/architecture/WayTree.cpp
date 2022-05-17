@@ -136,7 +136,7 @@ namespace architecture
 		{
 			node = m_currentPosition;
 
-			//startPosition = node->coordinates;
+			startPosition = node->coordinates;
 		}
 		else if (startPosition == node->coordinates)
 		{
@@ -218,7 +218,7 @@ namespace architecture
 
 	WayTree::~WayTree()
 	{
-		// add deleting way tree
+		// TO DO add correctly deleting way tree method
 
 		delete m_nodesMap;
 	}

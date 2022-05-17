@@ -11,16 +11,34 @@ namespace architecture
 
 	void Maze::startSearchingMeetPath()
 	{
-
+		makeMoove();
 	}
 
 	void Maze::makeMoove()
 	{
-		Direction kingDirection = m_king->determineMooveParameters();
-		Direction queenDirection = m_queen->determineMooveParameters();
+		Direction kingDirection;
+		Direction queenDirection;
+		bool isSuccessfully;
+		int stepNumber = 0;
 
+		do
+		{
+			kingDirection = m_king->determineMooveParameters();
+			queenDirection = m_queen->determineMooveParameters();
 
+			isSuccessfully = m_fairiland->go(kingDirection, queenDirection);
 
+			m_king->goToDirection(kingDirection);
+			m_queen->goToDirection(queenDirection);
+
+			std::cerr << stepNumber<<":\t" << "k:" << static_cast<char>(kingDirection) << "\tq:" << static_cast<char>(queenDirection) << "\n";
+			
+			stepNumber++;
+
+		} while ((kingDirection != Direction::Pass || queenDirection!= Direction::Pass) && !isSuccessfully);
+
+		std::cerr << m_fairiland->getTurnCount()<<"\n";
+		std::cerr << (isSuccessfully ? "Meeting successfully" : "No meeting") << "\n";
 	}
 
 	Maze::~Maze()
