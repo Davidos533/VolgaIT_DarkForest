@@ -1,8 +1,11 @@
 #ifndef WAY_TREE_HPP
 #define WAY_TREE_HPP
 
-#include "WayNode.hpp"
 #include <map>
+#include <stack>
+#include <list>
+
+#include "WayNode.hpp"
 
 namespace architecture
 {
@@ -40,9 +43,11 @@ namespace architecture
 		/// <param name="coordiantes">coordinates that's using for searching</param>
 		/// <param name="node">node that base for searching has default value = nullptr for using inside recursion</param>
 		/// <returns>finded node with coordinates</returns>
-		WayNode* findNodeByCoordiantes(Position coordiantes, WayNode* node = nullptr, Direction backDirection = Direction::Pass);
+		WayNode* findNodeByPosition(Position position, WayNode* node = nullptr, Direction backDirection = Direction::Pass);
 
 		void updateAllCoordiantes(int up, int down, int left, int right, WayNode* node = nullptr);
+
+		std::stack<Direction>* findShortestWayToPositionFromCurrent(Position position, WayNode* node = nullptr, Direction backDirection = Direction::Pass);
 
 		virtual ~WayTree();
 
@@ -53,6 +58,8 @@ namespace architecture
 		/// </summary>
 		/// <param name="checkingNode">checking node</param>
 		void findAndConnectNearestNodes(WayNode* checkingNode);
+
+		bool isPositionsNear(Position positionOne, Position positionTwo);
 	};
 }
 

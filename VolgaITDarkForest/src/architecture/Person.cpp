@@ -6,26 +6,40 @@ namespace architecture
 		:m_fairyland(fairyland), m_character(character)
 	{
 		m_wayTree = new WayTree();
-		m_waySequence = new std::stack<Direction>();
+		m_waySequence = nullptr;
 		m_startPosition = m_wayTree->getCurrentPosition();
 		m_coordiantesOfNotDiscoveredPosition = new std::list<Position>();
+		m_previousDirection = Direction::Pass;
 	}
 
 	Direction Person::determineMooveParameters()
 	{
 		Direction reversedDirection = Direction::Pass;
 		Position currentPosition = m_wayTree->getCurrentPosition()->coordinates;
-		
+
 		// delete current position from not discovered positions list if it contains there
 		m_coordiantesOfNotDiscoveredPosition->remove(currentPosition);
-		
-		// way sequence has moves hostory
-		if (m_waySequence->size() > 0)
+
+		if (m_character == Character::Ivan)
 		{
-			reversedDirection = getReversedDirection(m_waySequence->top());
+			std::cerr << currentPosition.first <<" " << currentPosition.second << "\n";
 		}
-		
+
+		reversedDirection = getReversedDirection(m_previousDirection);
+
 		Direction choicenDirection = Direction::Pass;
+
+		if (m_waySequence != nullptr && m_waySequence->size() > 0)
+		{
+			choicenDirection = getReversedDirection(m_waySequence->top());
+			m_waySequence->pop();
+		}
+
+		if (m_waySequence != nullptr && m_waySequence->size() == 0)
+		{
+			delete m_waySequence;
+			m_waySequence = nullptr;
+		}
 
 		// up direction will discover first
 		if (reversedDirection != Direction::Up && !isDiscoveredDirection(Direction::Up) && isCanGo(Direction::Up))
@@ -47,7 +61,7 @@ namespace architecture
 		{
 			if (choicenDirection != Direction::Pass)
 			{
-				emplaceCoordinatesIfNotExist(Position(currentPosition.first -1 , currentPosition.second));
+				emplaceCoordinatesIfNotExist(Position(currentPosition.first - 1, currentPosition.second));
 			}
 			else
 			{
@@ -69,23 +83,45 @@ namespace architecture
 		// person can't find any not discovered direction therefore should check way sequence stack ...
 		// ... if person have no discovered directions if person can return to position with not discovered directions, it will provide opportunity ...
 		// ... to discover no discovered nodes
-		if(choicenDirection == Direction::Pass && m_coordiantesOfNotDiscoveredPosition->size() > 0 && m_waySequence->size()!=0)
+		if (m_waySequence == nullptr && choicenDirection == Direction::Pass && m_coordiantesOfNotDiscoveredPosition->size() > 0)
 		{
-			choicenDirection = reversedDirection;
-			m_waySequence->pop();
-		}
-		// person moved therefore add moved direction to way sequence
-		else if(choicenDirection != Direction::Pass)
-		{
-			m_waySequence->push(choicenDirection);
+			int minPathLenght = -1;
+
+			// from all remembered not discovered positions determine nearest position, and change behavior to go there
+			for (auto& element : *m_coordiantesOfNotDiscoveredPosition)
+			{
+				std::stack<Direction>* waySequence = m_wayTree->findShortestWayToPositionFromCurrent(element);
+
+				if (waySequence->size() < minPathLenght || minPathLenght == -1)
+				{
+					if (m_waySequence != nullptr)
+					{
+						delete m_waySequence;
+					}
+
+					minPathLenght = waySequence->size();
+					m_waySequence = waySequence;
+				}
+				else
+				{
+					delete waySequence;
+				}
+			}
+
+			if (m_waySequence != nullptr && m_waySequence->size() > 0)
+			{
+				choicenDirection = getReversedDirection(m_waySequence->top());
+				m_waySequence->pop();
+			}
 		}
 
+		m_previousDirection = choicenDirection;
 		return choicenDirection;
 	}
 
 	void Person::emplaceCoordinatesIfNotExist(Position position)
 	{
-		if (std::find(m_coordiantesOfNotDiscoveredPosition->begin(), m_coordiantesOfNotDiscoveredPosition->end(), position) 
+		if (std::find(m_coordiantesOfNotDiscoveredPosition->begin(), m_coordiantesOfNotDiscoveredPosition->end(), position)
 			== m_coordiantesOfNotDiscoveredPosition->end())
 		{
 			m_coordiantesOfNotDiscoveredPosition->push_back(position);
@@ -143,16 +179,27 @@ namespace architecture
 
 	Person::~Person()
 	{
-		delete m_coordiantesOfNotDiscoveredPosition;
-		delete m_waySequence;
-		delete m_wayTree;
+		if (m_coordiantesOfNotDiscoveredPosition != nullptr)
+		{
+			delete m_coordiantesOfNotDiscoveredPosition;
+		}
+
+		if (m_waySequence != nullptr)
+		{
+			delete m_waySequence;
+		}
+
+		if (m_wayTree != nullptr)
+		{
+			delete m_wayTree;
+		}
 	}
 
 	Direction Person::getReversedDirection(Direction direction)
 	{
 		switch (direction)
 		{
-			case Direction::Up: 
+			case Direction::Up:
 			{
 				return Direction::Down;
 			}
@@ -168,7 +215,11 @@ namespace architecture
 			{
 				return Direction::Left;
 			}
-			default: 
+			case Direction::Pass:
+			{
+				return Direction::Pass;
+			}
+			default:
 			{
 				throw std::runtime_error("unknow direction for reversing");
 			}

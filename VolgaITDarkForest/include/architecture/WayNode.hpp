@@ -12,7 +12,6 @@ namespace architecture
 	{
 	public:
 		std::pair<int, int> coordinates;
-		Direction direction;
 		
 		WayNode* UpNode = nullptr;
 		WayNode* DownNode = nullptr;

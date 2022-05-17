@@ -3,6 +3,7 @@
 
 #include <stack>
 #include <list>
+#include <queue>
 
 #include "common/api/fairy_tail.hpp"
 #include "WayTree.hpp"
@@ -33,6 +34,11 @@ namespace architecture
 		/// </summary>
 		WayNode* m_startPosition;
 		
+		/// <summary>
+		/// person previous move direction
+		/// </summary>
+		Direction m_previousDirection;
+
 		/// <summary>
 		/// show how much not discovered(explored) branches left
 		/// </summary>

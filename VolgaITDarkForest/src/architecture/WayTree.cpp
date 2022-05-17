@@ -66,6 +66,8 @@ namespace architecture
 					// add node in map
 					m_nodesMap->insert(MapNodePair(m_currentPosition->coordinates, m_currentPosition));
 
+					findAndConnectNearestNodes(m_currentPosition);
+
 					return true;
 				}
 				else
@@ -128,7 +130,114 @@ namespace architecture
 		}
 	}
 
-	WayNode* WayTree::findNodeByCoordiantes(Position coordiantes, WayNode* node, Direction backDirection)
+	std::stack<Direction>* WayTree::findShortestWayToPositionFromCurrent(Position position, WayNode* node, Direction backDirection)
+	{
+		static Position startPosition;
+		static std::stack<Direction>* localWaySequence = nullptr;
+		static std::stack<Direction>* waySequence = nullptr;
+		static std::list<Position>* passedNodes = nullptr;
+
+		// at start automatically set current node as control node 
+		if (node == nullptr)
+		{
+			node = m_currentPosition;
+
+			// at first calling of this method in recurse set static variable like start position to avoid returning in start position
+			startPosition = node->coordinates;
+
+			if (localWaySequence != nullptr)
+			{
+				delete localWaySequence;
+			}
+
+			if (passedNodes != nullptr)
+			{
+				delete passedNodes;
+			}
+
+			localWaySequence = new std::stack<Direction>();
+			passedNodes = new std::list<Position>();
+			waySequence = nullptr;
+		}
+		// path returned in start postition, escape from this way branch
+		else if (node->coordinates == startPosition)
+		{
+			localWaySequence->pop();
+			return nullptr;
+		}
+		else if (std::find(passedNodes->begin(), passedNodes->end(), node->coordinates) != passedNodes->end())
+		{
+			localWaySequence->pop();
+			return nullptr;
+		}
+		else
+		{
+			passedNodes->push_back(node->coordinates);
+		}
+
+		// new find path lenghest than past path
+		if (waySequence != nullptr && waySequence->size() < localWaySequence->size())
+		{
+			localWaySequence->pop();
+			return nullptr;
+		}
+
+		// searching node finded, return back to search shortesd path
+		if (isPositionsNear(node->coordinates, position))
+		{
+			if (waySequence == nullptr || waySequence->size()>localWaySequence->size())
+			{
+				if (waySequence != nullptr)
+				{
+					delete waySequence;
+					waySequence = nullptr;
+				}
+
+				waySequence = new std::stack<Direction>(*localWaySequence);
+			}
+
+			if (localWaySequence->size() > 0)
+			{
+				localWaySequence->pop();
+			}
+
+			return waySequence;
+		}
+
+		if (node->UpNode != nullptr && backDirection != Direction::Up)
+		{
+			localWaySequence->push(Direction::Up);
+			findShortestWayToPositionFromCurrent(position, node->UpNode, Direction::Down);
+		}
+
+		if (node->DownNode != nullptr && backDirection != Direction::Down)
+		{
+			localWaySequence->push(Direction::Down);
+			findShortestWayToPositionFromCurrent(position, node->DownNode, Direction::Up);
+		}
+
+		if (node->LeftNode != nullptr && backDirection != Direction::Left)
+		{
+			localWaySequence->push(Direction::Left);
+			findShortestWayToPositionFromCurrent(position, node->LeftNode, Direction::Right);
+		}
+
+		if (node->RightNode != nullptr && backDirection != Direction::Right)
+		{
+			localWaySequence->push(Direction::Right);
+			findShortestWayToPositionFromCurrent(position, node->RightNode, Direction::Left);
+		}
+
+		if (localWaySequence->size())
+		{
+			// can't go to any branch, remove last direction
+			localWaySequence->pop();
+		}
+
+		return waySequence;
+	}
+
+	WayNode* WayTree::findNodeByPosition(Position position, WayNode* node, Direction backDirection)
 	{
 		static Position startPosition;
 
@@ -143,16 +252,14 @@ namespace architecture
 			return nullptr;
 		}
 
-		std::cerr << "x:" << node->coordinates.first << "\ty:" << node->coordinates.second << "\n";
-
-		if (node->coordinates == coordiantes)
+		if (node->coordinates == position)
 		{
 			return node;
 		}
 
 		if (node->UpNode != nullptr && backDirection != Direction::Up)
 		{
-			WayNode* findedNode = findNodeByCoordiantes(coordiantes, node->UpNode, Direction::Down);
+			WayNode* findedNode = findNodeByPosition(position, node->UpNode, Direction::Down);
 
 			if (findedNode != nullptr)
 			{
@@ -162,7 +269,7 @@ namespace architecture
 
 		if (node->DownNode != nullptr && backDirection != Direction::Down)
 		{
-			WayNode* findedNode = findNodeByCoordiantes(coordiantes, node->DownNode, Direction::Up);
+			WayNode* findedNode = findNodeByPosition(position, node->DownNode, Direction::Up);
 
 			if (findedNode != nullptr)
 			{
@@ -172,7 +279,7 @@ namespace architecture
 
 		if (node->LeftNode != nullptr && backDirection != Direction::Left)
 		{
-			WayNode* findedNode = findNodeByCoordiantes(coordiantes, node->LeftNode, Direction::Right);
+			WayNode* findedNode = findNodeByPosition(position, node->LeftNode, Direction::Right);
 
 			if (findedNode != nullptr)
 			{
@@ -182,7 +289,7 @@ namespace architecture
 
 		if (node->RightNode != nullptr && backDirection != Direction::Right)
 		{
-			WayNode* findedNode = findNodeByCoordiantes(coordiantes, node->RightNode, Direction::Left);
+			WayNode* findedNode = findNodeByPosition(position, node->RightNode, Direction::Left);
 
 			if (findedNode != nullptr)
 			{
@@ -218,9 +325,14 @@ namespace architecture
 
 	WayTree::~WayTree()
 	{
-		// TO DO add correctly deleting way tree method
-
-		delete m_nodesMap;
+		if (m_nodesMap != nullptr)
+		{
+			for (auto& element : *m_nodesMap)
+			{
+				delete element.second;
+			}
+			delete m_nodesMap;
+		}
 	}
 
 #pragma endregion
@@ -229,14 +341,13 @@ namespace architecture
 
 	void WayTree::findAndConnectNearestNodes(WayNode* checkingNode)
 	{
-		auto mapEnd = m_nodesMap->end();
 
 		// successively checks node relations, and try to connect not connected nodes
 		if (checkingNode->UpNode == nullptr)
 		{
 			auto result = m_nodesMap->find(Position(checkingNode->coordinates.first, checkingNode->coordinates.second + 1));
 
-			if (result != mapEnd)
+			if (result != m_nodesMap->end())
 			{
 				checkingNode->UpNode = result->second;
 			}
@@ -246,7 +357,7 @@ namespace architecture
 		{
 			auto result = m_nodesMap->find(Position(checkingNode->coordinates.first, checkingNode->coordinates.second - 1));
 
-			if (result != mapEnd)
+			if (result != m_nodesMap->end())
 			{
 				checkingNode->DownNode = result->second;
 			}
@@ -256,7 +367,7 @@ namespace architecture
 		{
 			auto result = m_nodesMap->find(Position(checkingNode->coordinates.first - 1, checkingNode->coordinates.second));
 
-			if (result != mapEnd)
+			if (result != m_nodesMap->end())
 			{
 				checkingNode->LeftNode = result->second;
 			}
@@ -266,11 +377,19 @@ namespace architecture
 		{
 			auto result = m_nodesMap->find(Position(checkingNode->coordinates.first + 1, checkingNode->coordinates.second));
 
-			if (result != mapEnd)
+			if (result != m_nodesMap->end())
 			{
 				checkingNode->RightNode = result->second;
 			}
 		}
+	}
+
+	bool WayTree::isPositionsNear(Position positionOne, Position positionTwo)
+	{
+		int diffOne = std::abs(positionOne.first - positionTwo.first);
+		int diffTwo = std::abs(positionOne.second - positionTwo.second);
+
+		return  (diffOne == 0 && diffTwo == 1) || (diffOne == 1 && diffTwo == 0);
 	}
 
 #pragma endregion
