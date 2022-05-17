@@ -37,6 +37,15 @@ namespace architecture
 
 		} while ((kingDirection != Direction::Pass || queenDirection!= Direction::Pass) && !isSuccessfully);
 
+		
+		auto mapView = m_king->getMapView();
+
+		for (auto& row : *mapView)
+		{
+			std::cerr << row << "\n";
+		}
+
+
 		std::cerr << m_fairiland->getTurnCount()<<"\n";
 		std::cerr << (isSuccessfully ? "Meeting successfully" : "No meeting") << "\n";
 	}

@@ -20,19 +20,14 @@ namespace architecture
 		// delete current position from not discovered positions list if it contains there
 		m_coordiantesOfNotDiscoveredPosition->remove(currentPosition);
 
-		if (m_character == Character::Ivan)
-		{
-			std::cerr << currentPosition.first <<" " << currentPosition.second << "\n";
-		}
-
 		reversedDirection = getReversedDirection(m_previousDirection);
 
 		Direction choicenDirection = Direction::Pass;
 
 		if (m_waySequence != nullptr && m_waySequence->size() > 0)
 		{
-			choicenDirection = getReversedDirection(m_waySequence->top());
-			m_waySequence->pop();
+			choicenDirection = m_waySequence->front();
+			m_waySequence->pop_front();
 		}
 
 		if (m_waySequence != nullptr && m_waySequence->size() == 0)
@@ -90,7 +85,7 @@ namespace architecture
 			// from all remembered not discovered positions determine nearest position, and change behavior to go there
 			for (auto& element : *m_coordiantesOfNotDiscoveredPosition)
 			{
-				std::stack<Direction>* waySequence = m_wayTree->findShortestWayToPositionFromCurrent(element);
+				std::list<Direction>* waySequence = m_wayTree->findShortestWayToPositionFromCurrent(element);
 
 				if (waySequence->size() < minPathLenght || minPathLenght == -1)
 				{
@@ -110,8 +105,8 @@ namespace architecture
 
 			if (m_waySequence != nullptr && m_waySequence->size() > 0)
 			{
-				choicenDirection = getReversedDirection(m_waySequence->top());
-				m_waySequence->pop();
+				choicenDirection = m_waySequence->front();
+				m_waySequence->pop_front();
 			}
 		}
 
@@ -130,17 +125,17 @@ namespace architecture
 
 	void Person::pushDirectionToWaySequence(Direction direction)
 	{
-		m_waySequence->push(direction);
+		m_waySequence->push_front(direction);
 	}
 
 	void Person::popDirectionFromWaySequence()
 	{
-		m_waySequence->pop();
+		m_waySequence->pop_front();
 	}
 
 	Direction Person::topDirectionInWaySequence()
 	{
-		return m_waySequence->top();
+		return m_waySequence->front();
 	}
 
 	bool Person::isCanGo(Direction direction)
@@ -224,5 +219,62 @@ namespace architecture
 				throw std::runtime_error("unknow direction for reversing");
 			}
 		}
+	}
+
+	std::vector<std::string>* Person::getMapView()
+	{
+		std::vector<std::string> *mapView = new std::vector<std::string>(10);
+
+		std::map<Position, WayNode*>* nodesMap = m_wayTree->getNodesMap();
+
+		int maxX = 0, maxY = 0, minX = 10, minY = 10, x, y;
+
+		for (auto& element : *nodesMap)
+		{
+			x = element.first.first;
+			y = element.first.second;
+
+			if (x > maxX)
+			{
+				maxX = x;
+			}
+			if (y > maxY)
+			{
+				maxY = y;
+			}
+			if (x < minX)
+			{
+				minX = x;
+			}
+			if (y < minY)
+			{
+				minY = y;
+			}
+		}
+
+		for (int y = 9; y >= 0; y--)
+		{
+			std::string row = "";
+			for (int x = 0; x < 10; x++)
+			{
+				auto element = nodesMap->find(Position(x + minX, y + minY));
+				
+				if (m_startPosition->coordinates.first +minX == x && m_startPosition->coordinates.second  + minY == y)
+				{
+					row.append("@");
+				}
+				else if (element != nodesMap->end())
+				{
+					row.append(".");
+				}
+				else
+				{
+					row.append("?");
+				}
+			}
+			mapView->push_back(row);
+		}
+
+		return mapView;
 	}
 }

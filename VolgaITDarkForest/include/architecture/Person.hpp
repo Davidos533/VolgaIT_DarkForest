@@ -1,9 +1,8 @@
 #ifndef PERSON_HPP
 #define PERSON_HPP
 
-#include <stack>
+#include <vector>
 #include <list>
-#include <queue>
 
 #include "common/api/fairy_tail.hpp"
 #include "WayTree.hpp"
@@ -47,7 +46,7 @@ namespace architecture
 		/// <summary>
 		/// contains all applied directions moves from start to current position
 		/// </summary>
-		std::stack<Direction>* m_waySequence;
+		std::list<Direction>* m_waySequence;
 
 	public:
 		explicit Person(Fairyland* fairyland, Character Character);
@@ -82,6 +81,8 @@ namespace architecture
 		/// </summary>
 		/// <param name="direction">mooveable direction</param>
 		void goToDirection(Direction direction);
+
+		std::vector<std::string>* getMapView();
 
 		virtual ~Person();
 	private:

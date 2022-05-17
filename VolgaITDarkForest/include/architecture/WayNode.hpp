@@ -12,7 +12,7 @@ namespace architecture
 	{
 	public:
 		std::pair<int, int> coordinates;
-		
+		bool isBarrier = false;
 		WayNode* UpNode = nullptr;
 		WayNode* DownNode = nullptr;
 		WayNode* LeftNode = nullptr;

@@ -130,11 +130,11 @@ namespace architecture
 		}
 	}
 
-	std::stack<Direction>* WayTree::findShortestWayToPositionFromCurrent(Position position, WayNode* node, Direction backDirection)
+	std::list<Direction>* WayTree::findShortestWayToPositionFromCurrent(Position position, WayNode* node, Direction backDirection)
 	{
 		static Position startPosition;
-		static std::stack<Direction>* localWaySequence = nullptr;
-		static std::stack<Direction>* waySequence = nullptr;
+		static std::list<Direction>* localWaySequence = nullptr;
+		static std::list<Direction>* waySequence = nullptr;
 		static std::list<Position>* passedNodes = nullptr;
 
 		// at start automatically set current node as control node 
@@ -155,19 +155,19 @@ namespace architecture
 				delete passedNodes;
 			}
 
-			localWaySequence = new std::stack<Direction>();
+			localWaySequence = new std::list<Direction>();
 			passedNodes = new std::list<Position>();
 			waySequence = nullptr;
 		}
 		// path returned in start postition, escape from this way branch
 		else if (node->coordinates == startPosition)
 		{
-			localWaySequence->pop();
+			localWaySequence->pop_back();
 			return nullptr;
 		}
 		else if (std::find(passedNodes->begin(), passedNodes->end(), node->coordinates) != passedNodes->end())
 		{
-			localWaySequence->pop();
+			localWaySequence->pop_back();
 			return nullptr;
 		}
 		else
@@ -178,7 +178,7 @@ namespace architecture
 		// new find path lenghest than past path
 		if (waySequence != nullptr && waySequence->size() < localWaySequence->size())
 		{
-			localWaySequence->pop();
+			localWaySequence->pop_back();
 			return nullptr;
 		}
 
@@ -193,12 +193,12 @@ namespace architecture
 					waySequence = nullptr;
 				}
 
-				waySequence = new std::stack<Direction>(*localWaySequence);
+				waySequence = new std::list<Direction>(*localWaySequence);
 			}
 
 			if (localWaySequence->size() > 0)
 			{
-				localWaySequence->pop();
+				localWaySequence->pop_back();
 			}
 
 			return waySequence;
@@ -206,32 +206,32 @@ namespace architecture
 
 		if (node->UpNode != nullptr && backDirection != Direction::Up)
 		{
-			localWaySequence->push(Direction::Up);
+			localWaySequence->push_back(Direction::Up);
 			findShortestWayToPositionFromCurrent(position, node->UpNode, Direction::Down);
 		}
 
 		if (node->DownNode != nullptr && backDirection != Direction::Down)
 		{
-			localWaySequence->push(Direction::Down);
+			localWaySequence->push_back(Direction::Down);
 			findShortestWayToPositionFromCurrent(position, node->DownNode, Direction::Up);
 		}
 
 		if (node->LeftNode != nullptr && backDirection != Direction::Left)
 		{
-			localWaySequence->push(Direction::Left);
+			localWaySequence->push_back(Direction::Left);
 			findShortestWayToPositionFromCurrent(position, node->LeftNode, Direction::Right);
 		}
 
 		if (node->RightNode != nullptr && backDirection != Direction::Right)
 		{
-			localWaySequence->push(Direction::Right);
+			localWaySequence->push_back(Direction::Right);
 			findShortestWayToPositionFromCurrent(position, node->RightNode, Direction::Left);
 		}
 
 		if (localWaySequence->size())
 		{
 			// can't go to any branch, remove last direction
-			localWaySequence->pop();
+			localWaySequence->pop_back();
 		}
 
 		return waySequence;
@@ -341,7 +341,6 @@ namespace architecture
 
 	void WayTree::findAndConnectNearestNodes(WayNode* checkingNode)
 	{
-
 		// successively checks node relations, and try to connect not connected nodes
 		if (checkingNode->UpNode == nullptr)
 		{

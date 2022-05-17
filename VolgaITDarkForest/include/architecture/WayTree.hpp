@@ -2,7 +2,6 @@
 #define WAY_TREE_HPP
 
 #include <map>
-#include <stack>
 #include <list>
 
 #include "WayNode.hpp"
@@ -47,7 +46,7 @@ namespace architecture
 
 		void updateAllCoordiantes(int up, int down, int left, int right, WayNode* node = nullptr);
 
-		std::stack<Direction>* findShortestWayToPositionFromCurrent(Position position, WayNode* node = nullptr, Direction backDirection = Direction::Pass);
+		std::list<Direction>* findShortestWayToPositionFromCurrent(Position position, WayNode* node = nullptr, Direction backDirection = Direction::Pass);
 
 		virtual ~WayTree();
 
