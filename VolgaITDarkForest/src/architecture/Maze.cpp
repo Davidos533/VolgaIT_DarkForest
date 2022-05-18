@@ -37,17 +37,23 @@ namespace architecture
 
 		} while ((kingDirection != Direction::Pass || queenDirection!= Direction::Pass) && !isSuccessfully);
 
+		std::cerr << (isSuccessfully ? "Meeting successfully" : "No meeting") << "\n";
+		std::cerr << "Count of steps:" << m_fairiland->getTurnCount() << "\n";
 		
-		auto mapView = m_king->getMapView();
+		auto kingMapView = m_king->getMapView();
+		auto queenMapView = m_queen->getMapView();
 
-		for (auto& row : *mapView)
+		std::cerr << "\nking map:\nX - start position\n";
+		for (auto& row : *kingMapView)
 		{
 			std::cerr << row << "\n";
 		}
 
-
-		std::cerr << m_fairiland->getTurnCount()<<"\n";
-		std::cerr << (isSuccessfully ? "Meeting successfully" : "No meeting") << "\n";
+		std::cerr << "\nqueen map:\nX mark - start position\n";
+		for (auto& row : *queenMapView)
+		{
+			std::cerr << row << "\n";
+		}
 	}
 
 	Maze::~Maze()

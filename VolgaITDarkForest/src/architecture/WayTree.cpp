@@ -39,7 +39,7 @@ namespace architecture
 					m_currentPosition = m_currentPosition->UpNode;
 
 					// add node in map
-					m_nodesMap->insert(MapNodePair(m_currentPosition->coordinates, m_currentPosition));
+					addNewNodeInNodesMap(m_currentPosition);
 
 					findAndConnectNearestNodes(m_currentPosition);
 
@@ -64,7 +64,7 @@ namespace architecture
 					m_currentPosition = m_currentPosition->DownNode;
 
 					// add node in map
-					m_nodesMap->insert(MapNodePair(m_currentPosition->coordinates, m_currentPosition));
+					addNewNodeInNodesMap(m_currentPosition);
 
 					findAndConnectNearestNodes(m_currentPosition);
 
@@ -89,7 +89,7 @@ namespace architecture
 					m_currentPosition = m_currentPosition->LeftNode;
 
 					// add node in map
-					m_nodesMap->insert(MapNodePair(m_currentPosition->coordinates, m_currentPosition));
+					addNewNodeInNodesMap(m_currentPosition);
 
 					findAndConnectNearestNodes(m_currentPosition);
 
@@ -114,7 +114,7 @@ namespace architecture
 					m_currentPosition = m_currentPosition->RightNode;
 
 					// add node in map
-					m_nodesMap->insert(MapNodePair(m_currentPosition->coordinates, m_currentPosition));
+					addNewNodeInNodesMap(m_currentPosition);
 
 					findAndConnectNearestNodes(m_currentPosition);
 
@@ -165,11 +165,11 @@ namespace architecture
 			localWaySequence->pop_back();
 			return nullptr;
 		}
-		else if (std::find(passedNodes->begin(), passedNodes->end(), node->coordinates) != passedNodes->end())
-		{
-			localWaySequence->pop_back();
-			return nullptr;
-		}
+		//else if (std::find(passedNodes->begin(), passedNodes->end(), node->coordinates) != passedNodes->end())
+		//{
+		//	localWaySequence->pop_back();
+		//	return nullptr;
+		//}
 		else
 		{
 			passedNodes->push_back(node->coordinates);
@@ -204,25 +204,25 @@ namespace architecture
 			return waySequence;
 		}
 
-		if (node->UpNode != nullptr && backDirection != Direction::Up)
+		if (node->UpNode != nullptr && backDirection != Direction::Up && !isContainsNodePositionInPositionsList(passedNodes, node->UpNode->coordinates))
 		{
 			localWaySequence->push_back(Direction::Up);
 			findShortestWayToPositionFromCurrent(position, node->UpNode, Direction::Down);
 		}
 
-		if (node->DownNode != nullptr && backDirection != Direction::Down)
+		if (node->DownNode != nullptr && backDirection != Direction::Down && !isContainsNodePositionInPositionsList(passedNodes, node->DownNode->coordinates))
 		{
 			localWaySequence->push_back(Direction::Down);
 			findShortestWayToPositionFromCurrent(position, node->DownNode, Direction::Up);
 		}
 
-		if (node->LeftNode != nullptr && backDirection != Direction::Left)
+		if (node->LeftNode != nullptr && backDirection != Direction::Left && !isContainsNodePositionInPositionsList(passedNodes, node->LeftNode->coordinates))
 		{
 			localWaySequence->push_back(Direction::Left);
 			findShortestWayToPositionFromCurrent(position, node->LeftNode, Direction::Right);
 		}
 
-		if (node->RightNode != nullptr && backDirection != Direction::Right)
+		if (node->RightNode != nullptr && backDirection != Direction::Right && !isContainsNodePositionInPositionsList(passedNodes, node->RightNode->coordinates))
 		{
 			localWaySequence->push_back(Direction::Right);
 			findShortestWayToPositionFromCurrent(position, node->RightNode, Direction::Left);
@@ -323,6 +323,48 @@ namespace architecture
 		}
 	}
 
+	void WayTree::tryAddBarrierToDirection(Direction direction)
+	{
+		Position position = m_currentPosition->coordinates;
+		switch (direction)
+		{
+			case Direction::Up:
+			{
+				tryAddBarrierNodeToPosition(Position(position.first,position.second+1));
+			}break;
+			case Direction::Down:
+			{
+				tryAddBarrierNodeToPosition(Position(position.first,position.second-1));
+			}break;
+			case Direction::Left:
+			{
+				tryAddBarrierNodeToPosition(Position(position.first-1,position.second));
+			}break;
+			case Direction::Right:
+			{
+				tryAddBarrierNodeToPosition(Position(position.first+1,position.second));
+			}break;
+		}
+	}
+
+	void WayTree::tryAddBarrierNodeToPosition(Position position)
+	{
+		// node with position not added
+		if (m_nodesMap->find(position) == m_nodesMap->end())
+		{
+			WayNode* newNode = new WayNode();
+			newNode->isBarrier = true;
+			newNode->coordinates = position;
+
+			m_nodesMap->insert(MapNodePair(position, newNode));
+		}
+	}
+
+	models::PersonIndents& WayTree::getPersonIndents()
+	{
+		return m_personIndents;
+	}
+
 	WayTree::~WayTree()
 	{
 		if (m_nodesMap != nullptr)
@@ -346,9 +388,14 @@ namespace architecture
 		{
 			auto result = m_nodesMap->find(Position(checkingNode->coordinates.first, checkingNode->coordinates.second + 1));
 
-			if (result != m_nodesMap->end())
+			if (result != m_nodesMap->end() && !result->second->isBarrier)
 			{
 				checkingNode->UpNode = result->second;
+
+				if (checkingNode->UpNode->DownNode == nullptr)
+				{
+					checkingNode->UpNode->DownNode = checkingNode;
+				}
 			}
 		}
 
@@ -359,6 +406,11 @@ namespace architecture
 			if (result != m_nodesMap->end())
 			{
 				checkingNode->DownNode = result->second;
+
+				if (checkingNode->DownNode->UpNode == nullptr && !result->second->isBarrier)
+				{
+					checkingNode->DownNode->UpNode = checkingNode;
+				}
 			}
 		}
 
@@ -369,6 +421,11 @@ namespace architecture
 			if (result != m_nodesMap->end())
 			{
 				checkingNode->LeftNode = result->second;
+				
+				if (checkingNode->LeftNode->RightNode == nullptr && !result->second->isBarrier)
+				{
+					checkingNode->LeftNode->RightNode = checkingNode;
+				}
 			}
 		}
 
@@ -379,6 +436,11 @@ namespace architecture
 			if (result != m_nodesMap->end())
 			{
 				checkingNode->RightNode = result->second;
+
+				if (checkingNode->RightNode->LeftNode == nullptr && !result->second->isBarrier)
+				{
+					checkingNode->RightNode->LeftNode = checkingNode;
+				}
 			}
 		}
 	}
@@ -389,6 +451,44 @@ namespace architecture
 		int diffTwo = std::abs(positionOne.second - positionTwo.second);
 
 		return  (diffOne == 0 && diffTwo == 1) || (diffOne == 1 && diffTwo == 0);
+	}
+
+	bool  WayTree::isContainsNodePositionInPositionsList(std::list<Position>* positions, Position position)
+	{
+		if (std::find(positions->begin(), positions->end(), position) != positions->end())
+		{
+			return true;
+		}
+	}
+
+	void WayTree::addNewNodeInNodesMap(WayNode* node)
+	{
+		updateIndentByNewNode(node);
+
+		m_nodesMap->insert(MapNodePair(node->coordinates, node));
+	}
+
+	void WayTree::updateIndentByNewNode(WayNode* node)
+	{
+		if (m_personIndents.maxIndentX < node->coordinates.first || m_personIndents.maxIndentX == -1)
+		{
+			m_personIndents.maxIndentX = node->coordinates.first;
+		}
+
+		if (m_personIndents.maxIndentY < node->coordinates.second || m_personIndents.maxIndentY == -1)
+		{
+			m_personIndents.maxIndentY = node->coordinates.second;
+		}
+
+		if (m_personIndents.minIndentX > node->coordinates.first || m_personIndents.minIndentX == -1)
+		{
+			m_personIndents.minIndentX = node->coordinates.first;
+		}
+
+		if (m_personIndents.minIndentY > node->coordinates.second || m_personIndents.minIndentY == -1)
+		{
+			m_personIndents.minIndentY = node->coordinates.second;
+		}
 	}
 
 #pragma endregion

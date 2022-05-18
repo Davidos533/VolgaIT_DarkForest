@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <list>
+#include <string>
 
 #include "common/api/fairy_tail.hpp"
 #include "WayTree.hpp"

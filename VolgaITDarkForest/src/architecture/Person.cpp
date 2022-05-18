@@ -140,7 +140,15 @@ namespace architecture
 
 	bool Person::isCanGo(Direction direction)
 	{
-		return m_fairyland->canGo(m_character, direction);
+		bool isCanGo = m_fairyland->canGo(m_character, direction);
+
+		////  can't go tehre, add node as a barrier 
+		if (!isCanGo)
+		{
+			m_wayTree->tryAddBarrierToDirection(direction);
+		}
+
+		return isCanGo;
 	}
 
 	bool Person::isDiscoveredDirection(Direction direction)
@@ -223,57 +231,53 @@ namespace architecture
 
 	std::vector<std::string>* Person::getMapView()
 	{
-		std::vector<std::string> *mapView = new std::vector<std::string>(10);
+		std::vector<std::string> *mapView = new std::vector<std::string>();
 
 		std::map<Position, WayNode*>* nodesMap = m_wayTree->getNodesMap();
 
-		int maxX = 0, maxY = 0, minX = 10, minY = 10, x, y;
+		// int maxX = 0, maxY = 0, minX = 10, minY = 10, x, y;
+		
+		models::PersonIndents personIndents = m_wayTree->getPersonIndents();
 
-		for (auto& element : *nodesMap)
-		{
-			x = element.first.first;
-			y = element.first.second;
-
-			if (x > maxX)
-			{
-				maxX = x;
-			}
-			if (y > maxY)
-			{
-				maxY = y;
-			}
-			if (x < minX)
-			{
-				minX = x;
-			}
-			if (y < minY)
-			{
-				minY = y;
-			}
-		}
-
-		for (int y = 9; y >= 0; y--)
+		for (int y = 11; y >= 0; y--)
 		{
 			std::string row = "";
-			for (int x = 0; x < 10; x++)
+			
+			if (y < 11 && y>0)
 			{
-				auto element = nodesMap->find(Position(x + minX, y + minY));
+				row.append(std::to_string(y-1));
+			}
+			else
+			{
+				row.append(" ");
+			}
+
+			for (int x = 0; x < 12; x++)
+			{
+				auto element = nodesMap->find(Position(x + personIndents.minIndentX-1, y + personIndents.minIndentY-1));
 				
-				if (m_startPosition->coordinates.first +minX == x && m_startPosition->coordinates.second  + minY == y)
-				{
-					row.append("@");
-				}
-				else if (element != nodesMap->end())
-				{
-					row.append(".");
-				}
-				else
+				if(element == nodesMap->end())
 				{
 					row.append("?");
 				}
+				else if (element->second->isBarrier)
+				{
+					row.append("#");
+				}
+				else if (m_startPosition->coordinates.first == element->second->coordinates.first && m_startPosition->coordinates.second == element->second->coordinates.second)
+				{
+					row.append("X");
+				}
+				else
+				{
+					row.append(".");
+				}
+
 			}
 			mapView->push_back(row);
 		}
+
+		mapView->push_back("  0123456789");
 
 		return mapView;
 	}

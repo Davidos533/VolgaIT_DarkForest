@@ -31,6 +31,7 @@
     <ClInclude Include="include\architecture\Person.hpp" />
     <ClInclude Include="include\architecture\WayNode.hpp" />
     <ClInclude Include="include\architecture\WayTree.hpp" />
+    <ClInclude Include="include\architecture\models\PersonIndents.hpp" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="res\input.txt">
