@@ -7,11 +7,11 @@
 
 namespace architecture
 {
-
+	using Position = std::pair<int, int>;
 	class WayNode
 	{
 	public:
-		std::pair<int, int> coordinates;
+		Position coordinates;
 		bool isBarrier = false;
 		WayNode* UpNode = nullptr;
 		WayNode* DownNode = nullptr;

@@ -12,10 +12,12 @@ namespace architecture
 		Fairyland *m_fairiland;
 		Person *m_king;
 		Person *m_queen;
-
+		
+		int m_xSize;
+		int m_ySize;
 
 	public:
-		explicit Maze();
+		explicit Maze(int xSize = 10, int ySize = 10);
 		Maze(const Maze& copy) = delete;
 
 		void startSearchingMeetPath();
@@ -23,8 +25,10 @@ namespace architecture
 		virtual ~Maze();
 
 	private:
-		void makeMoove();
 
+		void moove();
+
+		bool isCoordinatesStabilized(models::PersonIndents& indents);
 	};
 }
 #endif

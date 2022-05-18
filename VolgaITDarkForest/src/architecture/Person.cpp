@@ -111,6 +111,8 @@ namespace architecture
 		}
 
 		m_previousDirection = choicenDirection;
+
+		goToDirection(choicenDirection);
 		return choicenDirection;
 	}
 
@@ -121,21 +123,6 @@ namespace architecture
 		{
 			m_coordiantesOfNotDiscoveredPosition->push_back(position);
 		}
-	}
-
-	void Person::pushDirectionToWaySequence(Direction direction)
-	{
-		m_waySequence->push_front(direction);
-	}
-
-	void Person::popDirectionFromWaySequence()
-	{
-		m_waySequence->pop_front();
-	}
-
-	Direction Person::topDirectionInWaySequence()
-	{
-		return m_waySequence->front();
 	}
 
 	bool Person::isCanGo(Direction direction)
@@ -178,6 +165,11 @@ namespace architecture
 	void Person::goToDirection(Direction direction)
 	{
 		m_wayTree->addOrSetNodeInConcreteDirection(direction);
+	}
+
+	std::list<Direction>* Person::findShortestWayToPositionFromCurrent(Position position)
+	{
+		return m_wayTree->findShortestWayToPositionFromCurrent(position);
 	}
 
 	Person::~Person()
@@ -229,34 +221,52 @@ namespace architecture
 		}
 	}
 
-	std::vector<std::string>* Person::getMapView()
+	models::PersonIndents& Person::getPersonIndents()
 	{
-		std::vector<std::string> *mapView = new std::vector<std::string>();
+		return m_wayTree->getPersonIndents();
+	}
+
+	Position Person::getCurrentPosition()
+	{
+		return m_wayTree->getCurrentPosition()->coordinates;
+	}
+
+	void Person::setWaySequence(std::list<Direction>* waySequence)
+	{
+		if (m_waySequence != nullptr)
+		{
+			delete m_waySequence;
+		}
+
+		m_waySequence = waySequence;
+	}
+
+	std::vector<std::string>* Person::getMapView(int xSize, int ySize)
+	{
+		std::vector<std::string>* mapView = new std::vector<std::string>();
 
 		std::map<Position, WayNode*>* nodesMap = m_wayTree->getNodesMap();
 
-		// int maxX = 0, maxY = 0, minX = 10, minY = 10, x, y;
-		
 		models::PersonIndents personIndents = m_wayTree->getPersonIndents();
 
-		for (int y = 11; y >= 0; y--)
+		for (int y = xSize + 1; y >= 0; y--)
 		{
 			std::string row = "";
-			
-			if (y < 11 && y>0)
+
+			if (y < ySize + 1 && y>0)
 			{
-				row.append(std::to_string(y-1));
+				row.append(std::to_string(y - 1));
 			}
 			else
 			{
 				row.append(" ");
 			}
 
-			for (int x = 0; x < 12; x++)
+			for (int x = 0; x < xSize + 2; x++)
 			{
-				auto element = nodesMap->find(Position(x + personIndents.minIndentX-1, y + personIndents.minIndentY-1));
-				
-				if(element == nodesMap->end())
+				auto element = nodesMap->find(Position(x + personIndents.minIndentX - 1, y + personIndents.minIndentY - 1));
+
+				if (element == nodesMap->end())
 				{
 					row.append("?");
 				}
@@ -264,7 +274,8 @@ namespace architecture
 				{
 					row.append("#");
 				}
-				else if (m_startPosition->coordinates.first == element->second->coordinates.first && m_startPosition->coordinates.second == element->second->coordinates.second)
+				else if (m_startPosition->coordinates.first == element->second->coordinates.first &&
+					m_startPosition->coordinates.second == element->second->coordinates.second)
 				{
 					row.append("X");
 				}

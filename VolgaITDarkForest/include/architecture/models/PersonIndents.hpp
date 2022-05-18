@@ -7,10 +7,10 @@ namespace architecture
 	{
 		struct PersonIndents
 		{
-			int maxIndentX = -1;
-			int maxIndentY = -1;
-			int minIndentX = -1;
-			int minIndentY = -1;
+			int maxIndentX = 0;
+			int maxIndentY = 0;
+			int minIndentX = 0;
+			int minIndentY = 0;
 		};
 	}
 }

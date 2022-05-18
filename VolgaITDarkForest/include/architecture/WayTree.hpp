@@ -15,7 +15,6 @@ namespace architecture
 	/// </summary>
 	class WayTree
 	{
-		using Position = std::pair<int, int>;
 		using MapNodePair = std::pair<std::pair<int, int>, WayNode*>;
 
 	private:
@@ -49,7 +48,10 @@ namespace architecture
 		/// <returns>map with all nodes of graph, key - position, value - node</returns>
 		std::map<Position, WayNode*>* const getNodesMap() const;
 
-
+		/// <summary>
+		/// getter
+		/// </summary>
+		/// <returns>model with relative data about max min indents by coordinates oX oY</returns>
 		models::PersonIndents& getPersonIndents();
 
 		/// <summary>

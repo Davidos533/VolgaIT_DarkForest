@@ -11,7 +11,6 @@ namespace architecture
 {
 	class Person
 	{
-		using Position = std::pair<int, int>;
 	private:
 		
 		/// <summary>
@@ -40,12 +39,12 @@ namespace architecture
 		Direction m_previousDirection;
 
 		/// <summary>
-		/// show how much not discovered(explored) branches left
+		/// show how much not discovered(explored) nodes(branches) left
 		/// </summary>
 		std::list<Position>* m_coordiantesOfNotDiscoveredPosition;
 		
 		/// <summary>
-		/// contains all applied directions moves from start to current position
+		/// contains path from current position to nearest not discovered node
 		/// </summary>
 		std::list<Direction>* m_waySequence;
 
@@ -55,12 +54,35 @@ namespace architecture
 		Person() = delete;
 		Person(const Person& object) = delete;
 
-		void pushDirectionToWaySequence(Direction direction);
+		/// <summary>
+		/// getter
+		/// </summary>
+		/// <returns>provide current person position</returns>
+		Position getCurrentPosition();
 
-		void popDirectionFromWaySequence();
+		/// <summary>
+		/// getter
+		/// </summary>
+		/// <returns>provide person max min indents by oX and oY</returns>
+		models::PersonIndents& getPersonIndents();
 
-		Direction topDirectionInWaySequence();
+		/// <summary>
+		/// setter
+		/// </summary>
+		/// <param name="waySequence">way sequnce for set in person way sequence</param>
+		void setWaySequence(std::list<Direction>* waySequence);
 
+		/// <summary>
+		/// find shortest way between current object position and given position
+		/// </summary>
+		/// <param name="position">given position</param>
+		/// <returns>list(front) with directions from current position to given</returns>
+		std::list<Direction>* findShortestWayToPositionFromCurrent(Position position);
+
+		/// <summary>
+		/// main method - path scheduler, determine where should move persone by went path
+		/// </summary>
+		/// <returns>move direction</returns>
 		Direction determineMooveParameters();
 
 		/// <summary>
@@ -83,10 +105,11 @@ namespace architecture
 		/// <param name="direction">mooveable direction</param>
 		void goToDirection(Direction direction);
 
-		std::vector<std::string>* getMapView();
-
-		virtual ~Person();
-	private:
+		/// <summary>
+		/// provide view of person went path
+		/// </summary>
+		/// <returns></returns>
+		std::vector<std::string>* getMapView(int xSize, int ySize);
 
 		/// <summary>
 		/// gets reversed (opposite) direction of given direction
@@ -95,6 +118,13 @@ namespace architecture
 		/// <returns>reversed direction</returns>
 		Direction getReversedDirection(Direction direction);
 
+		virtual ~Person();
+	private:
+
+		/// <summary>
+		/// add coordinates to list not discovered nodes(squares)
+		/// </summary>
+		/// <param name="position"></param>
 		void emplaceCoordinatesIfNotExist(Position position);
 	};
 }

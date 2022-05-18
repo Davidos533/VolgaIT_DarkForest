@@ -17,7 +17,7 @@ namespace architecture
 		return m_currentPosition;
 	}
 
-	std::map<WayTree::Position, WayNode*>* const WayTree::getNodesMap() const
+	std::map<Position, WayNode*>* const WayTree::getNodesMap() const
 	{
 		return m_nodesMap;
 	}
@@ -165,11 +165,7 @@ namespace architecture
 			localWaySequence->pop_back();
 			return nullptr;
 		}
-		//else if (std::find(passedNodes->begin(), passedNodes->end(), node->coordinates) != passedNodes->end())
-		//{
-		//	localWaySequence->pop_back();
-		//	return nullptr;
-		//}
+
 		else
 		{
 			passedNodes->push_back(node->coordinates);
@@ -470,22 +466,22 @@ namespace architecture
 
 	void WayTree::updateIndentByNewNode(WayNode* node)
 	{
-		if (m_personIndents.maxIndentX < node->coordinates.first || m_personIndents.maxIndentX == -1)
+		if (m_personIndents.maxIndentX < node->coordinates.first)
 		{
 			m_personIndents.maxIndentX = node->coordinates.first;
 		}
 
-		if (m_personIndents.maxIndentY < node->coordinates.second || m_personIndents.maxIndentY == -1)
+		if (m_personIndents.maxIndentY < node->coordinates.second)
 		{
 			m_personIndents.maxIndentY = node->coordinates.second;
 		}
 
-		if (m_personIndents.minIndentX > node->coordinates.first || m_personIndents.minIndentX == -1)
+		if (m_personIndents.minIndentX > node->coordinates.first)
 		{
 			m_personIndents.minIndentX = node->coordinates.first;
 		}
 
-		if (m_personIndents.minIndentY > node->coordinates.second || m_personIndents.minIndentY == -1)
+		if (m_personIndents.minIndentY > node->coordinates.second)
 		{
 			m_personIndents.minIndentY = node->coordinates.second;
 		}
