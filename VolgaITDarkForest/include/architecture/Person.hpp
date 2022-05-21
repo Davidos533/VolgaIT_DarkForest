@@ -67,6 +67,30 @@ namespace architecture
 		models::PersonIndents& getPersonIndents();
 
 		/// <summary>
+		/// getter
+		/// </summary>
+		/// <returns>nodes map (key - position in local coordinates, value - node) of class instance way tree</returns>
+		std::map<Position, WayNode*>* getWayTreeNodesMap();
+
+		/// <summary>
+		/// getter
+		/// </summary>
+		/// <returns> person start position</returns>
+		Position getPersonStartPosition();
+
+		/// <summary>
+		/// getter
+		/// </summary>
+		/// <returns>person previous position based on WayTree and previous direction</returns>
+		Position getPersonPreviousPosition();
+
+		/// <summary>
+		/// getter
+		/// </summary>
+		/// <returns>person previous direction</returns>
+		Direction getPersonPreviousDirection();
+
+		/// <summary>
 		/// setter
 		/// </summary>
 		/// <param name="waySequence">way sequnce for set in person way sequence</param>
@@ -109,14 +133,14 @@ namespace architecture
 		/// provide view of person went path
 		/// </summary>
 		/// <returns></returns>
-		std::vector<std::string>* getMapView(int xSize, int ySize);
+		std::string getMapView(int xSize, int ySize);
 
 		/// <summary>
 		/// gets reversed (opposite) direction of given direction
 		/// </summary>
 		/// <param name="direction">given direction</param>
 		/// <returns>reversed direction</returns>
-		Direction getReversedDirection(Direction direction);
+		static Direction getReversedDirection(Direction direction);
 
 		virtual ~Person();
 	private:

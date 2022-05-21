@@ -131,6 +131,14 @@ namespace architecture
 		/// </summary>
 		/// <param name="node">given node</param>
 		void updateIndentByNewNode(WayNode* node);
+
+		/// <summary>
+		/// determine direction to near position
+		/// </summary>
+		/// <param name="currentPosition">current position</param>
+		/// <param name="anotherPosition">another position</param>
+		/// <returns></returns>
+		Direction determineDirectionToNearPosition(Position currentPosition, Position anotherPosition);
 	};
 }
 

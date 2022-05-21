@@ -39,7 +39,14 @@ namespace architecture
 		// up direction will discover first
 		if (reversedDirection != Direction::Up && !isDiscoveredDirection(Direction::Up) && isCanGo(Direction::Up))
 		{
-			choicenDirection = Direction::Up;
+			if (choicenDirection != Direction::Pass)
+			{
+				emplaceCoordinatesIfNotExist(Position(currentPosition.first + 1, currentPosition.second));
+			}
+			else
+			{
+				choicenDirection = Direction::Up;
+			}
 		}
 		if (reversedDirection != Direction::Down && !isDiscoveredDirection(Direction::Down) && isCanGo(Direction::Down))
 		{
@@ -86,6 +93,7 @@ namespace architecture
 			for (auto& element : *m_coordiantesOfNotDiscoveredPosition)
 			{
 				std::list<Direction>* waySequence = m_wayTree->findShortestWayToPositionFromCurrent(element);
+				waySequence->pop_back();
 
 				if (waySequence->size() < minPathLenght || minPathLenght == -1)
 				{
@@ -241,9 +249,38 @@ namespace architecture
 		m_waySequence = waySequence;
 	}
 
-	std::vector<std::string>* Person::getMapView(int xSize, int ySize)
+	std::map<Position, WayNode*>* Person::getWayTreeNodesMap()
 	{
-		std::vector<std::string>* mapView = new std::vector<std::string>();
+		return m_wayTree->getNodesMap();
+	}
+
+	Position Person::getPersonStartPosition()
+	{
+		return m_startPosition->coordinates;
+	}
+
+	Position Person::getPersonPreviousPosition()
+	{
+		WayNode* currentPosition = m_wayTree->getCurrentPosition();
+		
+		switch (m_previousDirection)
+		{
+			case Direction::Up:return currentPosition->DownNode->coordinates;
+			case Direction::Down:return currentPosition->UpNode->coordinates;
+			case Direction::Left:return currentPosition->RightNode->coordinates;
+			case Direction::Right:return currentPosition->LeftNode->coordinates;
+			default: return Position(0, 0);
+		}
+	}
+
+	Direction Person::getPersonPreviousDirection()
+	{
+		return m_previousDirection;
+	}
+
+	std::string Person::getMapView(int xSize, int ySize)
+	{
+		std::string mapView;
 
 		std::map<Position, WayNode*>* nodesMap = m_wayTree->getNodesMap();
 
@@ -251,44 +288,53 @@ namespace architecture
 
 		for (int y = xSize + 1; y >= 0; y--)
 		{
-			std::string row = "";
-
 			if (y < ySize + 1 && y>0)
 			{
-				row.append(std::to_string(y - 1));
+				mapView.append(std::to_string(y - 1));
 			}
 			else
 			{
-				row.append(" ");
+				mapView.append(" ");
 			}
 
 			for (int x = 0; x < xSize + 2; x++)
 			{
-				auto element = nodesMap->find(Position(x + personIndents.minIndentX - 1, y + personIndents.minIndentY - 1));
-
-				if (element == nodesMap->end())
+				if (x == 0 || x == xSize + 1 || y == 0 || y == ySize + 1)
 				{
-					row.append("?");
-				}
-				else if (element->second->isBarrier)
-				{
-					row.append("#");
-				}
-				else if (m_startPosition->coordinates.first == element->second->coordinates.first &&
-					m_startPosition->coordinates.second == element->second->coordinates.second)
-				{
-					row.append("X");
+					mapView.append(" ");
 				}
 				else
 				{
-					row.append(".");
+					auto element = nodesMap->find(Position(x + personIndents.minIndentX - 1, y + personIndents.minIndentY - 1));
+
+					if (element == nodesMap->end())
+					{
+						mapView.append("?");
+					}
+					else if (element->second->isBarrier)
+					{
+						mapView.append("#");
+					}
+					else if (m_startPosition->coordinates.first == element->second->coordinates.first &&
+						m_startPosition->coordinates.second == element->second->coordinates.second)
+					{
+						mapView.append(m_character == Character::Ivan ? "@" : "&");
+					}
+					else
+					{
+						mapView.append(".");
+					}
 				}
 
 			}
-			mapView->push_back(row);
+
+			if (y != 0)
+			{
+				mapView += "\n";
+			}
 		}
 
-		mapView->push_back("  0123456789");
+		mapView+="\n  0123456789";
 
 		return mapView;
 	}

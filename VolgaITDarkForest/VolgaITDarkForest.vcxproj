@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="include\architecture\enums\MapViewParseOffset.hpp" />
     <ClCompile Include="src\architecture\Maze.cpp" />
     <ClCompile Include="src\common\api\fairy_tail.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -27,6 +28,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\architecture\Maze.hpp" />
+    <ClInclude Include="include\architecture\models\PositionsDifference.hpp" />
     <ClInclude Include="include\common\api\fairy_tail.hpp" />
     <ClInclude Include="include\architecture\Person.hpp" />
     <ClInclude Include="include\architecture\WayNode.hpp" />

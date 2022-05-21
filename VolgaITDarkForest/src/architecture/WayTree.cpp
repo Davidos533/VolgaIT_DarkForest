@@ -172,7 +172,7 @@ namespace architecture
 		}
 
 		// new find path lenghest than past path
-		if (waySequence != nullptr && waySequence->size() < localWaySequence->size())
+		if (waySequence != nullptr && (waySequence->size() - 1)  < localWaySequence->size())
 		{
 			localWaySequence->pop_back();
 			return nullptr;
@@ -181,7 +181,7 @@ namespace architecture
 		// searching node finded, return back to search shortesd path
 		if (isPositionsNear(node->coordinates, position))
 		{
-			if (waySequence == nullptr || waySequence->size()>localWaySequence->size())
+			if (waySequence == nullptr || (waySequence->size() - 1) >localWaySequence->size())
 			{
 				if (waySequence != nullptr)
 				{
@@ -190,6 +190,7 @@ namespace architecture
 				}
 
 				waySequence = new std::list<Direction>(*localWaySequence);
+				waySequence->push_back(determineDirectionToNearPosition(node->coordinates, position));
 			}
 
 			if (localWaySequence->size() > 0)
@@ -399,11 +400,11 @@ namespace architecture
 		{
 			auto result = m_nodesMap->find(Position(checkingNode->coordinates.first, checkingNode->coordinates.second - 1));
 
-			if (result != m_nodesMap->end())
+			if (result != m_nodesMap->end() && !result->second->isBarrier)
 			{
 				checkingNode->DownNode = result->second;
 
-				if (checkingNode->DownNode->UpNode == nullptr && !result->second->isBarrier)
+				if (checkingNode->DownNode->UpNode == nullptr )
 				{
 					checkingNode->DownNode->UpNode = checkingNode;
 				}
@@ -414,11 +415,11 @@ namespace architecture
 		{
 			auto result = m_nodesMap->find(Position(checkingNode->coordinates.first - 1, checkingNode->coordinates.second));
 
-			if (result != m_nodesMap->end())
+			if (result != m_nodesMap->end() && !result->second->isBarrier)
 			{
 				checkingNode->LeftNode = result->second;
 				
-				if (checkingNode->LeftNode->RightNode == nullptr && !result->second->isBarrier)
+				if (checkingNode->LeftNode->RightNode == nullptr)
 				{
 					checkingNode->LeftNode->RightNode = checkingNode;
 				}
@@ -429,11 +430,11 @@ namespace architecture
 		{
 			auto result = m_nodesMap->find(Position(checkingNode->coordinates.first + 1, checkingNode->coordinates.second));
 
-			if (result != m_nodesMap->end())
+			if (result != m_nodesMap->end() && !result->second->isBarrier)
 			{
 				checkingNode->RightNode = result->second;
 
-				if (checkingNode->RightNode->LeftNode == nullptr && !result->second->isBarrier)
+				if (checkingNode->RightNode->LeftNode == nullptr)
 				{
 					checkingNode->RightNode->LeftNode = checkingNode;
 				}
@@ -484,6 +485,26 @@ namespace architecture
 		if (m_personIndents.minIndentY > node->coordinates.second)
 		{
 			m_personIndents.minIndentY = node->coordinates.second;
+		}
+	}
+
+	Direction WayTree::determineDirectionToNearPosition(Position currentPosition, Position anotherPosition)
+	{
+		if (currentPosition.second < anotherPosition.second)
+		{
+			return Direction::Up;
+		}
+		else if (currentPosition.second > anotherPosition.second)
+		{
+			return Direction::Down;
+		}
+		else if (currentPosition.first > anotherPosition.first)
+		{
+			return Direction::Left;
+		}
+		else
+		{
+			return Direction::Right;
 		}
 	}
 
