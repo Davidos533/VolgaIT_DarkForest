@@ -1,84 +1,21 @@
-#include <cstdlib>
-#include <ctime>
-#include <conio.h>
-#include <vector>
+#include "architecture/Maze.hpp"
 
-#include "common/api/fairy_tail.hpp"
-#include "architecture/Person.hpp"
-#include "architecture/WayTree.hpp"
-
-int walk();
+#include <vld.h>
 
 int main()
 {
-	architecture::WayTree* wayTree = new architecture::WayTree();
+	architecture::Maze* maze = new architecture::Maze();
 
-	wayTree->addNode(Direction::Right);
-	wayTree->addNode(Direction::Left);
-	wayTree->addNode(Direction::Up);
-	wayTree->addNode(Direction::Right);
-	wayTree->addNode(Direction::Right);
-	wayTree->addNode(Direction::Right);
-	wayTree->addNode(Direction::Left);
-	wayTree->addNode(Direction::Down);
-	wayTree->addNode(Direction::Down);
-	wayTree->addNode(Direction::Right);
-	wayTree->addNode(Direction::Left);
-	wayTree->addNode(Direction::Left);
-	wayTree->addNode(Direction::Left);
-	wayTree->addNode(Direction::Up);
-
-	architecture::WayNode* result = wayTree->findNodeByCoordiantes(std::pair<int, int>(1, 0));
-
-	if (result != nullptr)
-	{
-		std::cerr << "Node found: x:" << result->coordinates.first << "\ty:" << result->coordinates.second<<"\n";
-	}
-	else
-	{
-		std::cerr << "Warning! Node not found";
-	}
-
-	delete wayTree;
-
-	//srand(static_cast<unsigned int>(time(nullptr)));
-	////CircularList<int> a;
-	//if (const int turns = walk())
-	//    std::cout << "Found in " << turns << " turns" << std::endl;
-	//else
-	//    std::cout << "Not found" << std::endl;
-	//
-	//_getch();
-
-	return 0;
-}
-
-
-// method to make a meeting
-int walk()
-{
-	Fairyland world;
 	try
 	{
-		long iterNums;
-
-		//architecture::Person king(world, Character::Ivan);
-		//architecture::Person queen(world, Character::Elena);
-
-		// persons sides walk lengths
-		//std::vector<int> sidesWalkLengtKing(4);
-		//std::vector<int> sidesWalkLengthQueen(4);
-
-		//do
-		//{
-		//	king.moove();
-		//	queen.moove();
-		//} while (!world.go(king.getDirection(), queen.getDirection()));
-
+		maze->startSearchingMeetPath();
 	}
-	catch (std::runtime_error)
+	catch (std::runtime_error error)
 	{
-
+		std::cerr << error.what() << "\n";
 	}
-	return world.getTurnCount();
+	
+	delete maze;
+	
+	return 0;
 }

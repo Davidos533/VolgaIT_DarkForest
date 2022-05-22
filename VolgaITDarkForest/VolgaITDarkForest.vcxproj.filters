@@ -47,8 +47,17 @@
     <ClInclude Include="include\architecture\Maze.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="include\architecture\models\PersonIndents.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="include\architecture\models\PositionsDifference.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="include\architecture\enums\NodeType.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="res\input.txt" />
+    <CopyFileToFolders Include="res\input.txt" />
   </ItemGroup>
 </Project>
