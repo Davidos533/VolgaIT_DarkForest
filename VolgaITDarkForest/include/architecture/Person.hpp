@@ -91,6 +91,18 @@ namespace architecture
 		Direction getPersonPreviousDirection();
 
 		/// <summary>
+		/// getter
+		/// </summary>
+		/// <returns>person character</returns>
+		Character getCharacter();
+
+		/// <summary>
+		/// getter 
+		/// </summary>
+		/// <returns>count of unique nodes that's was passed</returns>
+		int getCountOfPassedUniqueNodes();
+
+		/// <summary>
 		/// setter
 		/// </summary>
 		/// <param name="waySequence">way sequnce for set in person way sequence</param>

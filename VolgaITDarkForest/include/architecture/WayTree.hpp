@@ -9,14 +9,13 @@
 
 namespace architecture
 {
+	using MapNodePair = std::pair<std::pair<int, int>, WayNode*>;
 	/// <summary>
 	/// NOT tree, historical name
 	/// person way GRAPH
 	/// </summary>
 	class WayTree
 	{
-		using MapNodePair = std::pair<std::pair<int, int>, WayNode*>;
-
 	private:
 		/// <summary>
 		/// current node(position), root node
@@ -32,6 +31,20 @@ namespace architecture
 		/// model with relative data about max min indents by coordinates oX oY
 		/// </summary>
 		models::PersonIndents m_personIndents;
+
+		/// <summary>
+		/// count of unique nodes that's was passed
+		/// </summary>
+		int m_countOfPassedNodes;
+
+		Position m_startPosition;
+
+		std::list<Direction>* m_localWaySequence;
+
+		std::list<Direction>* m_waySequence;
+
+		std::list<Position>* m_passedNodes;
+
 	public:
 		explicit WayTree();
 		WayTree(const WayTree& object) = delete;
@@ -53,6 +66,12 @@ namespace architecture
 		/// </summary>
 		/// <returns>model with relative data about max min indents by coordinates oX oY</returns>
 		models::PersonIndents& getPersonIndents();
+
+		/// <summary>
+		/// getter 
+		/// </summary>
+		/// <returns>count of unique nodes that's was passed</returns>
+		int getCountOfPassedUniqueNodes();
 
 		/// <summary>
 		/// add new way node to current position and set it's like current(root) node 

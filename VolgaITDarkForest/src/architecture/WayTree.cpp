@@ -10,6 +10,10 @@ namespace architecture
 		m_currentPosition->coordinates = Position(0, 0);
 		m_nodesMap = new std::map<Position, WayNode*>();
 		m_nodesMap->insert(MapNodePair(m_currentPosition->coordinates, m_currentPosition));
+		m_countOfPassedNodes = 0;
+		m_localWaySequence = nullptr;
+		m_waySequence = nullptr;
+		m_passedNodes = nullptr;
 	}
 
 	WayNode* const WayTree::getCurrentPosition() const
@@ -22,9 +26,14 @@ namespace architecture
 		return m_nodesMap;
 	}
 
+	int WayTree::getCountOfPassedUniqueNodes()
+	{
+		return m_countOfPassedNodes;
+	}
+
 	bool WayTree::addOrSetNodeInConcreteDirection(Direction direction)
 	{
-		// determine direction 
+		// determine direction and add node if it's already not exists else just set node in given direction as root
 		switch (direction)
 		{
 			case Direction::Up:
@@ -41,6 +50,7 @@ namespace architecture
 					// add node in map
 					addNewNodeInNodesMap(m_currentPosition);
 
+					// try to find boys next doors and connect them
 					findAndConnectNearestNodes(m_currentPosition);
 
 					return true;
@@ -66,6 +76,7 @@ namespace architecture
 					// add node in map
 					addNewNodeInNodesMap(m_currentPosition);
 
+					// try to find boys next doors and connect them
 					findAndConnectNearestNodes(m_currentPosition);
 
 					return true;
@@ -91,6 +102,7 @@ namespace architecture
 					// add node in map
 					addNewNodeInNodesMap(m_currentPosition);
 
+					// try to find boys next doors and connect them
 					findAndConnectNearestNodes(m_currentPosition);
 
 					return true;
@@ -116,6 +128,7 @@ namespace architecture
 					// add node in map
 					addNewNodeInNodesMap(m_currentPosition);
 
+					// try to find boys next doors and connect them
 					findAndConnectNearestNodes(m_currentPosition);
 
 					return true;
@@ -132,106 +145,106 @@ namespace architecture
 
 	std::list<Direction>* WayTree::findShortestWayToPositionFromCurrent(Position position, WayNode* node, Direction backDirection)
 	{
-		static Position startPosition;
-		static std::list<Direction>* localWaySequence = nullptr;
-		static std::list<Direction>* waySequence = nullptr;
-		static std::list<Position>* passedNodes = nullptr;
-
 		// at start automatically set current node as control node 
 		if (node == nullptr)
 		{
 			node = m_currentPosition;
 
 			// at first calling of this method in recurse set static variable like start position to avoid returning in start position
-			startPosition = node->coordinates;
+			m_startPosition = node->coordinates;
 
-			if (localWaySequence != nullptr)
+			if (m_localWaySequence != nullptr)
 			{
-				delete localWaySequence;
+				m_localWaySequence->clear();
+				delete m_localWaySequence;
+				m_localWaySequence = nullptr;
 			}
 
-			if (passedNodes != nullptr)
+			if (m_passedNodes != nullptr)
 			{
-				delete passedNodes;
+				m_passedNodes->clear();
+				delete m_passedNodes;
+				m_passedNodes = nullptr;
 			}
 
-			localWaySequence = new std::list<Direction>();
-			passedNodes = new std::list<Position>();
-			waySequence = nullptr;
+			m_localWaySequence = new std::list<Direction>();
+			m_passedNodes = new std::list<Position>();
+			m_waySequence = nullptr;
 		}
 		// path returned in start postition, escape from this way branch
-		else if (node->coordinates == startPosition)
+		else if (node->coordinates == m_startPosition)
 		{
-			localWaySequence->pop_back();
+			m_localWaySequence->pop_back();
 			return nullptr;
 		}
 
 		else
 		{
-			passedNodes->push_back(node->coordinates);
+			m_passedNodes->push_back(node->coordinates);
 		}
 
 		// new find path lenghest than past path
-		if (waySequence != nullptr && (waySequence->size() - 1)  < localWaySequence->size())
+		if (m_waySequence != nullptr && (m_waySequence->size() - 1)  < m_localWaySequence->size())
 		{
-			localWaySequence->pop_back();
+			m_localWaySequence->pop_back();
 			return nullptr;
 		}
 
 		// searching node finded, return back to search shortesd path
 		if (isPositionsNear(node->coordinates, position))
 		{
-			if (waySequence == nullptr || (waySequence->size() - 1) >localWaySequence->size())
+			if (m_waySequence == nullptr || (m_waySequence->size() - 1) > m_localWaySequence->size())
 			{
-				if (waySequence != nullptr)
+				if (m_waySequence != nullptr)
 				{
-					delete waySequence;
-					waySequence = nullptr;
+					m_waySequence->clear();
+					delete m_waySequence;
+					m_waySequence = nullptr;
 				}
 
-				waySequence = new std::list<Direction>(*localWaySequence);
-				waySequence->push_back(determineDirectionToNearPosition(node->coordinates, position));
+				m_waySequence = new std::list<Direction>(*m_localWaySequence);
+				m_waySequence->push_back(determineDirectionToNearPosition(node->coordinates, position));
 			}
 
-			if (localWaySequence->size() > 0)
+			if (m_localWaySequence->size() > 0)
 			{
-				localWaySequence->pop_back();
+				m_localWaySequence->pop_back();
 			}
 
-			return waySequence;
+			return m_waySequence;
 		}
 
-		if (node->UpNode != nullptr && backDirection != Direction::Up && !isContainsNodePositionInPositionsList(passedNodes, node->UpNode->coordinates))
+		if (node->UpNode != nullptr && backDirection != Direction::Up && !isContainsNodePositionInPositionsList(m_passedNodes, node->UpNode->coordinates))
 		{
-			localWaySequence->push_back(Direction::Up);
+			m_localWaySequence->push_back(Direction::Up);
 			findShortestWayToPositionFromCurrent(position, node->UpNode, Direction::Down);
 		}
 
-		if (node->DownNode != nullptr && backDirection != Direction::Down && !isContainsNodePositionInPositionsList(passedNodes, node->DownNode->coordinates))
+		if (node->DownNode != nullptr && backDirection != Direction::Down && !isContainsNodePositionInPositionsList(m_passedNodes, node->DownNode->coordinates))
 		{
-			localWaySequence->push_back(Direction::Down);
+			m_localWaySequence->push_back(Direction::Down);
 			findShortestWayToPositionFromCurrent(position, node->DownNode, Direction::Up);
 		}
 
-		if (node->LeftNode != nullptr && backDirection != Direction::Left && !isContainsNodePositionInPositionsList(passedNodes, node->LeftNode->coordinates))
+		if (node->LeftNode != nullptr && backDirection != Direction::Left && !isContainsNodePositionInPositionsList(m_passedNodes, node->LeftNode->coordinates))
 		{
-			localWaySequence->push_back(Direction::Left);
+			m_localWaySequence->push_back(Direction::Left);
 			findShortestWayToPositionFromCurrent(position, node->LeftNode, Direction::Right);
 		}
 
-		if (node->RightNode != nullptr && backDirection != Direction::Right && !isContainsNodePositionInPositionsList(passedNodes, node->RightNode->coordinates))
+		if (node->RightNode != nullptr && backDirection != Direction::Right && !isContainsNodePositionInPositionsList(m_passedNodes, node->RightNode->coordinates))
 		{
-			localWaySequence->push_back(Direction::Right);
+			m_localWaySequence->push_back(Direction::Right);
 			findShortestWayToPositionFromCurrent(position, node->RightNode, Direction::Left);
 		}
 
-		if (localWaySequence->size())
+		if (m_localWaySequence->size())
 		{
 			// can't go to any branch, remove last direction
-			localWaySequence->pop_back();
+			m_localWaySequence->pop_back();
 		}
 
-		return waySequence;
+		return m_waySequence;
 	}
 
 	WayNode* WayTree::findNodeByPosition(Position position, WayNode* node, Direction backDirection)
@@ -369,8 +382,21 @@ namespace architecture
 			for (auto& element : *m_nodesMap)
 			{
 				delete element.second;
+				element.second = nullptr;
 			}
 			delete m_nodesMap;
+		}
+
+		if (m_localWaySequence != nullptr)
+		{
+			delete m_localWaySequence;
+			m_localWaySequence = nullptr;
+		}
+
+		if (m_passedNodes != nullptr)
+		{
+			delete m_passedNodes;
+			m_passedNodes = nullptr;
 		}
 	}
 
@@ -456,10 +482,12 @@ namespace architecture
 		{
 			return true;
 		}
+		return false;
 	}
 
 	void WayTree::addNewNodeInNodesMap(WayNode* node)
 	{
+		m_countOfPassedNodes++;
 		updateIndentByNewNode(node);
 
 		m_nodesMap->insert(MapNodePair(node->coordinates, node));

@@ -1,30 +1,9 @@
 #include "architecture/Maze.hpp"
 
+#include <vld.h>
+
 int main()
 {
-	//architecture::WayTree* wayTree = new architecture::WayTree();
-
-	//wayTree->addOrSetNodeInConcreteDirection(Direction::Up);
-	//wayTree->addOrSetNodeInConcreteDirection(Direction::Up);
-	//wayTree->addOrSetNodeInConcreteDirection(Direction::Up);
-	//wayTree->addOrSetNodeInConcreteDirection(Direction::Right);
-	//wayTree->addOrSetNodeInConcreteDirection(Direction::Right);
-	//wayTree->addOrSetNodeInConcreteDirection(Direction::Right);
-	//wayTree->addOrSetNodeInConcreteDirection(Direction::Right);
-	//wayTree->addOrSetNodeInConcreteDirection(Direction::Down);
-	//wayTree->addOrSetNodeInConcreteDirection(Direction::Down);
-	//wayTree->addOrSetNodeInConcreteDirection(Direction::Down);
-	//wayTree->addOrSetNodeInConcreteDirection(Direction::Left);
-	//wayTree->addOrSetNodeInConcreteDirection(Direction::Left);
-	//wayTree->addOrSetNodeInConcreteDirection(Direction::Up);
-	//wayTree->addOrSetNodeInConcreteDirection(Direction::Up);
-	//wayTree->addOrSetNodeInConcreteDirection(Direction::Down);
-	//wayTree->addOrSetNodeInConcreteDirection(Direction::Down);
-	//wayTree->addOrSetNodeInConcreteDirection(Direction::Left);
-	//wayTree->addOrSetNodeInConcreteDirection(Direction::Left);
-
-	//auto result = wayTree->findShortestWayToPositionFromCurrent(std::pair<int, int>(2,2));
-
 	architecture::Maze* maze = new architecture::Maze();
 
 	try
@@ -37,6 +16,6 @@ int main()
 	}
 	
 	delete maze;
-
+	
 	return 0;
 }

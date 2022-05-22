@@ -19,7 +19,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="include\architecture\enums\MapViewParseOffset.hpp" />
     <ClCompile Include="src\architecture\Maze.cpp" />
     <ClCompile Include="src\common\api\fairy_tail.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -27,6 +26,7 @@
     <ClCompile Include="src\architecture\WayTree.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\architecture\enums\NodeType.hpp" />
     <ClInclude Include="include\architecture\Maze.hpp" />
     <ClInclude Include="include\architecture\models\PositionsDifference.hpp" />
     <ClInclude Include="include\common\api\fairy_tail.hpp" />
@@ -36,9 +36,7 @@
     <ClInclude Include="include\architecture\models\PersonIndents.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="res\input.txt">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </CopyFileToFolders>
+    <CopyFileToFolders Include="res\input.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -93,12 +91,17 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>D:\VolgaIT2022\VolgaIT\VolgaITDarkForest\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\VolgaIT2022\VolgaIT\VolgaITDarkForest\lib;$(LibraryPath)</LibraryPath>
-    <SourcePath>D:\VolgaIT2022\VolgaIT\VolgaITDarkForest\src;$(SourcePath)</SourcePath>
+    <IncludePath>..\VolgaITDarkForest\include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\VolgaITDarkForest\lib;$(LibraryPath)</LibraryPath>
+    <SourcePath>..\VolgaITDarkForest\src;$(SourcePath)</SourcePath>
+    <OutDir>../x86/Debug</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>..\VolgaITDarkForest\include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\VolgaITDarkForest\lib;$(LibraryPath)</LibraryPath>
+    <SourcePath>..\VolgaITDarkForest\src;$(SourcePath)</SourcePath>
+    <OutDir>../x86/Release</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -108,6 +111,9 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>..\VolgaITDarkForest\include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\VolgaITDarkForest\lib;$(LibraryPath)</LibraryPath>
+    <SourcePath>..\VolgaITDarkForest\src;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

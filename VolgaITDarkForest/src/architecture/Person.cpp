@@ -14,40 +14,60 @@ namespace architecture
 
 	Direction Person::determineMooveParameters()
 	{
+		// set default value
 		Direction reversedDirection = Direction::Pass;
+
+		// get current position
 		Position currentPosition = m_wayTree->getCurrentPosition()->coordinates;
 
 		// delete current position from not discovered positions list if it contains there
 		m_coordiantesOfNotDiscoveredPosition->remove(currentPosition);
 
+		// get reversed direction (direction tats need to roll back position) by previous vove direction
 		reversedDirection = getReversedDirection(m_previousDirection);
 
+		// set choicen direction default value
 		Direction choicenDirection = Direction::Pass;
 
+		// if way sequence not equals nullptr is determinied and it's size more than zero get move direction from it and trim size
 		if (m_waySequence != nullptr && m_waySequence->size() > 0)
 		{
 			choicenDirection = m_waySequence->front();
 			m_waySequence->pop_front();
 		}
 
+		// if way sequence not equals nullptr is determinied and it's size equals zero, free memory and set value for it nullptr
 		if (m_waySequence != nullptr && m_waySequence->size() == 0)
 		{
+			m_waySequence->clear();
 			delete m_waySequence;
 			m_waySequence = nullptr;
 		}
 
-		// up direction will discover first
+		
+		// next path scheduler will check directions by that's rules:
+		// will move in direction if: 
+		// - this direction not equals reversedDirection (direction to roll back to previous position)
+		// - direction not discovered
+		// - person can go in this direction
+
+		// if person don't go to direction but it not discovered and can go there person will save this position ...
+		// ... to come back later when person will get in position where all directions not avaliable and/or are discovered
+
+		// try to go up
 		if (reversedDirection != Direction::Up && !isDiscoveredDirection(Direction::Up) && isCanGo(Direction::Up))
 		{
 			if (choicenDirection != Direction::Pass)
 			{
-				emplaceCoordinatesIfNotExist(Position(currentPosition.first + 1, currentPosition.second));
+				emplaceCoordinatesIfNotExist(Position(currentPosition.first, currentPosition.second + 1));
 			}
 			else
 			{
 				choicenDirection = Direction::Up;
 			}
 		}
+
+		// try to go down
 		if (reversedDirection != Direction::Down && !isDiscoveredDirection(Direction::Down) && isCanGo(Direction::Down))
 		{
 			if (choicenDirection != Direction::Pass)
@@ -59,6 +79,8 @@ namespace architecture
 				choicenDirection = Direction::Down;
 			}
 		}
+
+		// try to go left
 		if (reversedDirection != Direction::Left && !isDiscoveredDirection(Direction::Left) && isCanGo(Direction::Left))
 		{
 			if (choicenDirection != Direction::Pass)
@@ -70,6 +92,8 @@ namespace architecture
 				choicenDirection = Direction::Left;
 			}
 		}
+
+		// try to go right
 		if (reversedDirection != Direction::Right && !isDiscoveredDirection(Direction::Right) && isCanGo(Direction::Right))
 		{
 			if (choicenDirection != Direction::Pass)
@@ -93,24 +117,30 @@ namespace architecture
 			for (auto& element : *m_coordiantesOfNotDiscoveredPosition)
 			{
 				std::list<Direction>* waySequence = m_wayTree->findShortestWayToPositionFromCurrent(element);
-				waySequence->pop_back();
-
-				if (waySequence->size() < minPathLenght || minPathLenght == -1)
+				if (waySequence != nullptr)
 				{
-					if (m_waySequence != nullptr)
+					waySequence->pop_back();
+
+					if (waySequence->size() < minPathLenght || minPathLenght == -1)
 					{
-						delete m_waySequence;
-					}
+						if (m_waySequence != nullptr)
+						{
+							m_waySequence->clear();
+							delete m_waySequence;
+						}
 
-					minPathLenght = waySequence->size();
-					m_waySequence = waySequence;
-				}
-				else
-				{
-					delete waySequence;
+						minPathLenght = waySequence->size();
+						m_waySequence = waySequence;
+					}
+					else
+					{
+						waySequence->clear();
+						delete waySequence;
+					}
 				}
 			}
 
+			// get direction from new builded way
 			if (m_waySequence != nullptr && m_waySequence->size() > 0)
 			{
 				choicenDirection = m_waySequence->front();
@@ -118,9 +148,19 @@ namespace architecture
 			}
 		}
 
+		// security from not inaccessible direction
+		// person can't go in choicen direction set as direction Pass
+		if (!isCanGo(choicenDirection))
+		{
+			choicenDirection = Direction::Pass;
+		}
+
+		// set previous direction
 		m_previousDirection = choicenDirection;
 
+		// move person in graph data structure
 		goToDirection(choicenDirection);
+
 		return choicenDirection;
 	}
 
@@ -184,11 +224,13 @@ namespace architecture
 	{
 		if (m_coordiantesOfNotDiscoveredPosition != nullptr)
 		{
+			m_coordiantesOfNotDiscoveredPosition->clear();
 			delete m_coordiantesOfNotDiscoveredPosition;
 		}
 
 		if (m_waySequence != nullptr)
 		{
+			m_waySequence->clear();
 			delete m_waySequence;
 		}
 
@@ -239,10 +281,16 @@ namespace architecture
 		return m_wayTree->getCurrentPosition()->coordinates;
 	}
 
+	Character Person::getCharacter()
+	{
+		return m_character;
+	}
+
 	void Person::setWaySequence(std::list<Direction>* waySequence)
 	{
 		if (m_waySequence != nullptr)
 		{
+			m_waySequence->clear();
 			delete m_waySequence;
 		}
 
@@ -278,14 +326,23 @@ namespace architecture
 		return m_previousDirection;
 	}
 
+	int Person::getCountOfPassedUniqueNodes()
+	{
+		return m_wayTree->getCountOfPassedUniqueNodes();
+	}
+
 	std::string Person::getMapView(int xSize, int ySize)
 	{
+		// parsed map view
 		std::string mapView;
 
+		// get nodes map
 		std::map<Position, WayNode*>* nodesMap = m_wayTree->getNodesMap();
 
+		// get indents to convert nodes map coordinates to normal coordinates (0,0)
 		models::PersonIndents personIndents = m_wayTree->getPersonIndents();
 
+		// parsin by oY from top to bottom
 		for (int y = xSize + 1; y >= 0; y--)
 		{
 			if (y < ySize + 1 && y>0)
@@ -297,6 +354,7 @@ namespace architecture
 				mapView.append(" ");
 			}
 
+			// parsing by oX from left to rigth
 			for (int x = 0; x < xSize + 2; x++)
 			{
 				if (x == 0 || x == xSize + 1 || y == 0 || y == ySize + 1)
@@ -334,6 +392,7 @@ namespace architecture
 			}
 		}
 
+		// add bottom map legend
 		mapView+="\n  0123456789";
 
 		return mapView;
