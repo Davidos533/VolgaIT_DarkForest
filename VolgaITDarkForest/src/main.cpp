@@ -2,8 +2,12 @@
 
 #include <cstdio>
 
-int main()
+int main(int argc, const char* argv[])
 {
+	std::cerr << "place file with maze data near:\n" << argv[0] <<"\nand press any key...\n";
+
+	getchar();
+
 	architecture::Maze* maze = new architecture::Maze();
 
 	try
