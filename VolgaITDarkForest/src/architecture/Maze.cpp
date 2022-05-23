@@ -19,6 +19,8 @@ namespace architecture
 
 		int stepNumber = 1;
 
+		std::cerr << "\nk - king, q - queen steps directions\n\n";
+
 		do
 		{
 			// determine move direction of persons and move persons in inside data structure
