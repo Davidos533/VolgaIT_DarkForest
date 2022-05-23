@@ -1,6 +1,6 @@
 #include "architecture/Maze.hpp"
 
-#include <vld.h>
+#include <cstdio>
 
 int main()
 {
@@ -17,5 +17,7 @@ int main()
 	
 	delete maze;
 	
+	getchar();
+
 	return 0;
 }
